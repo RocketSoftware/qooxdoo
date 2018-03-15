@@ -200,9 +200,12 @@ qx.Class.define("qx.theme.manager.Appearance",
 
       // Resolve ID
       var aliasMap = this.__aliasMap;
-      var resolved = aliasMap[id];
+      if(!aliasMap[theme.name]) {
+        aliasMap[theme.name] = {};
+      }
+      var resolved = aliasMap[theme.name][id];
       if (!resolved) {
-        resolved = aliasMap[id] = this.__resolveId(id, theme, defaultId);
+        resolved = aliasMap[theme.name][id] = this.__resolveId(id, theme, defaultId);
       }
 
       // Query theme for ID
@@ -255,8 +258,8 @@ qx.Class.define("qx.theme.manager.Appearance",
 
       // Using cache if available
       var cache = this.__styleCache;
-      if (cache[unique] !== undefined) {
-        return cache[unique];
+      if (cache[theme.name] && (cache[theme.name][unique] !== undefined)) {
+        return cache[theme.name][unique];
       }
 
       // Fallback to default (empty) states map
@@ -277,21 +280,25 @@ qx.Class.define("qx.theme.manager.Appearance",
           incl = this.styleFrom(entry.include, states, theme, defaultId);
         }
 
+        var base;
+        if (entry.base)
+        {
+           base = this.styleFrom(resolved, states, entry.base, defaultId);
+        }
+
         // This process tries to insert the original data first, and
         // append the new data later, to higher prioritize the local
         // data above the included/inherited data. This is especially needed
         // for property groups or properties which includes other
         // properties when modified.
-        var local = entry.style(states, incl);
+        var local = entry.style(states, incl, base);
 
         // Create new map
         result = {};
 
         // Copy base data, but exclude overwritten local and included stuff
-        if (entry.base)
+        if (base)
         {
-          var base = this.styleFrom(resolved, states, entry.base, defaultId);
-
           if (entry.include)
           {
             for (var baseIncludeKey in base)
@@ -334,7 +341,10 @@ qx.Class.define("qx.theme.manager.Appearance",
       }
 
       // Cache new entry and return
-      return cache[unique] = result || null;
+      if(!cache[theme.name]) {
+        cache[theme.name] = {};
+      }
+       return cache[theme.name][unique] = result || null;
     }
   },
 
