@@ -764,6 +764,13 @@ qx.Bootstrap.define("qx.event.handler.GestureCore", {
       }
     },
 
+    //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+    cleanupOnUnregister: function() {
+      this.__defaultTarget = null;
+      this.__primaryTarget = null;
+      this.__lastTap = {};
+    },
+
     /**
      * Dispose the current instance
      */

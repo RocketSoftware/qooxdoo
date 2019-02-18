@@ -300,6 +300,8 @@ qx.Bootstrap.define("qx.event.handler.TouchCore", {
 
       if ((type == "touchend" || type == "touchcancel") && domEvent.changedTouches[0]) {
         delete this.__touchStartPosition[domEvent.changedTouches[0].identifier];
+        //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+        this.__originalTarget = null;
       }
     },
 
@@ -439,6 +441,10 @@ qx.Bootstrap.define("qx.event.handler.TouchCore", {
       }
     },
 
+    //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+    cleanupOnUnregister: function() {
+      this.__originalTarget = null;
+    },
 
     /**
      * Dispose this object

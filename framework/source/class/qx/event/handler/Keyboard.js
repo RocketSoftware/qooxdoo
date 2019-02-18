@@ -197,13 +197,17 @@ qx.Class.define("qx.event.handler.Keyboard",
 
       // IE and Safari suppress a "keypress" event if the "keydown" event's
       // default action was prevented. In this case we emulate the "keypress"
-      if (
-        qx.core.Environment.get("engine.name") == "mshtml" ||
-        qx.core.Environment.get("engine.name") == "webkit"
-      )
-      {
-        if (type == "keydown" && event.getDefaultPrevented())
-        {
+      //
+      // FireFox suppresses "keypress" when "keydown" default action is prevented.
+      // from version 29: https://bugzilla.mozilla.org/show_bug.cgi?id=935876.
+      // LegaSuite modified (imported qooxdoo fix)
+      // https://jira.rocketsoftware.com/browse/LS-17143
+      // https://jira.rocketsoftware.com/browse/LS-17524
+      if (event.getDefaultPrevented() && type == "keydown") {
+        if (qx.core.Environment.get("engine.name") == "mshtml" ||
+            qx.core.Environment.get("engine.name") == "webkit" ||
+            (qx.core.Environment.get("engine.name") == "gecko" && qx.core.Environment.get("browser.version") >= 29)) {
+
           // some key press events are already emulated. Ignore these events.
           if (!qx.event.util.Keyboard.isNonPrintableKeyCode(keyCode) && !this._emulateKeyPress[keyCode]) {
             this._fireSequenceEvent(domEvent, "keypress", keyIdentifier);
@@ -309,62 +313,7 @@ qx.Class.define("qx.event.handler.Keyboard",
      */
     __onKeyUpDown : qx.event.GlobalError.observeMethod(qx.core.Environment.select("engine.name",
     {
-      "mshtml" : function(domEvent)
-      {
-        domEvent = window.event || domEvent;
-
-        var keyCode = domEvent.keyCode;
-        var charCode = 0;
-        var type = domEvent.type;
-
-        // Ignore the down in such sequences dp dp dp
-        if (!(this.__lastUpDownType[keyCode] == "keydown" && type == "keydown")) {
-          this._idealKeyHandler(keyCode, charCode, type, domEvent);
-        }
-
-        // On non print-able character be sure to add a keypress event
-        if (type == "keydown")
-        {
-          // non-printable, backspace or tab
-          if (qx.event.util.Keyboard.isNonPrintableKeyCode(keyCode) || this._emulateKeyPress[keyCode]) {
-            this._idealKeyHandler(keyCode, charCode, "keypress", domEvent);
-          }
-        }
-
-        // Store last type
-        this.__lastUpDownType[keyCode] = type;
-      },
-
-      "gecko" : function(domEvent)
-      {
-        var charCode = 0;
-        var keyCode = domEvent.keyCode;
-        var type = domEvent.type;
-        var kbUtil = qx.event.util.Keyboard;
-
-        // FF repeats under windows keydown events like IE
-        if (qx.core.Environment.get("os.name") == "win")
-        {
-          var keyIdentifier = keyCode ? kbUtil.keyCodeToIdentifier(keyCode) : kbUtil.charCodeToIdentifier(charCode);
-
-          if (!(this.__lastUpDownType[keyIdentifier] == "keydown" && type == "keydown")) {
-            this._idealKeyHandler(keyCode, charCode, type, domEvent);
-          }
-
-          // Store last type
-          this.__lastUpDownType[keyIdentifier] = type;
-        }
-
-        // all other OSes
-        else
-        {
-          this._idealKeyHandler(keyCode, charCode, type, domEvent);
-        }
-
-        this.__firefoxInputFix(domEvent.target, type, keyCode);
-      },
-
-      "webkit" : function(domEvent)
+      "gecko|webkit|mshtml" : function(domEvent)
       {
         var keyCode = 0;
         var charCode = 0;

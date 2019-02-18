@@ -70,7 +70,12 @@ qx.Class.define("qx.ui.form.AbstractField",
         selector = ["input.qx-placeholder-color", "-ms-input-placeholder, textarea.qx-placeholder-color", "-ms-input-placeholder"].join(separator);
         qx.ui.style.Stylesheet.getInstance().addRule(selector, "color: " + color + " !important");
       }
-    }
+    },
+
+    "NONE": 0,
+    "UPPERCASE": 1,
+    "LOWERCASE": 2,
+    "START_CASE": 3
   },
 
   /*
@@ -231,8 +236,8 @@ qx.Class.define("qx.ui.form.AbstractField",
     /**
      * RegExp responsible for filtering the value of the textfield. the RegExp
      * gives the range of valid values.
-     * Note: The regexp specified is applied to each character in turn, 
-     * NOT to the entire string. So only regular expressions matching a 
+     * Note: The regexp specified is applied to each character in turn,
+     * NOT to the entire string. So only regular expressions matching a
      * single character make sense in the context.
      * The following example only allows digits in the textfield.
      * <pre class='javascript'>field.setFilter(/[0-9]/);</pre>
@@ -242,6 +247,13 @@ qx.Class.define("qx.ui.form.AbstractField",
       check : "RegExp",
       nullable : true,
       init : null
+    },
+
+    "casing":
+    {
+      check: "Integer",
+      nullable: true,
+      init: 0
     }
   },
 
@@ -556,7 +568,9 @@ qx.Class.define("qx.ui.form.AbstractField",
     _onHtmlInput : function(e)
     {
       var value = e.getData();
+      var casedValue;
       var fireEvents = true;
+      var filteredValue = "";
 
       this.__nullValue = false;
 
@@ -565,29 +579,60 @@ qx.Class.define("qx.ui.form.AbstractField",
         fireEvents = false;
       }
 
+      casedValue = this._applyCasingOnInput(value, this.getCasing());
+
       // check for the filter
-      if (this.getFilter() != null)
-      {
-        var filteredValue = this._validateInput(value);
-        if (filteredValue != value)
-        {
-          fireEvents = false;
-          value = filteredValue;
-          this.getContentElement().setValue(value);
-        }
+      if (this.getFilter() != null) {
+        filteredValue = this._validateInput(casedValue);
       }
+      if (filteredValue != value)
+      {
+        fireEvents = false;
+        var caretPosition = this.getTextSelectionEnd();
+        var newCaretPosition;
+        var symbolsOnTheRight = value.length - caretPosition;
+        value = filteredValue;
+        newCaretPosition = value.length - symbolsOnTheRight;
+        this.getContentElement().setValue(value);
+        this.setTextSelection(newCaretPosition, newCaretPosition);
+      }
+
       // fire the events, if necessary
-      if (fireEvents)
+      //if (fireEvents)
       {
         // store the old input value
         this.fireDataEvent("input", value, this.__oldInputValue);
         this.__oldInputValue = value;
-
+      }
         // check for the live change event
         if (this.getLiveUpdate()) {
           this.__fireChangeValueEvent(value);
         }
+    },
+
+    /**
+     * Applies casing on a value
+     * @returns value after casing or unchanged value
+     */
+    _applyCasingOnInput: function(value, casing)
+    {
+      var casedValue = value;
+      switch(casing)
+      {
+        case qx.ui.form.AbstractField.UPPERCASE:
+          casedValue = value.toUpperCase();
+          break;
+        case qx.ui.form.AbstractField.LOWERCASE:
+          casedValue = value.toLowerCase();
+          break;
+        case qx.ui.form.AbstractField.START_CASE:
+          var ar = value.split(" ");
+          casedValue = (ar.map(function(el) {
+            return el ? el[0].toUpperCase() + (el.substring(1, el.length)).toLowerCase() : "";
+          })).join(" ");
+          break;
       }
+      return casedValue;
     },
 
     /**
@@ -935,7 +980,7 @@ qx.Class.define("qx.ui.form.AbstractField",
     },
     /**
      * validates the the input value
-     * 
+     *
      * @param {type} value: the value to check
      * @returns the checked value
      */

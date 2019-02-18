@@ -907,10 +907,10 @@ qx.Class.define("qx.ui.core.Widget",
       }
 
       return false;
-    },
+    }
 
-    /** @type {Map} Contains all pooled separators for reuse */
-    __separatorPool : new qx.util.ObjectPool()
+    //https://jira.rocketsoftware.com/browse/LS-18196 - [#LS-18196] JavaScript heap is increasing and causing client performance issues over time [LS82_RELEASE]
+    //removed separator pool
   },
 
 
@@ -1115,15 +1115,14 @@ qx.Class.define("qx.ui.core.Widget",
         return;
       }
 
-      var pool = qx.ui.core.Widget.__separatorPool;
       var content = this.getContentElement();
       var widget;
 
       for (var i=0, l=reg.length; i<l; i++)
       {
         widget = reg[i];
-        pool.poolObject(widget);
         content.remove(widget.getContentElement());
+        widget.dispose();
       }
 
       // Clear registry
@@ -1135,7 +1134,7 @@ qx.Class.define("qx.ui.core.Widget",
     renderSeparator : function(separator, bounds)
     {
       // Insert
-      var widget = qx.ui.core.Widget.__separatorPool.getObject(qx.ui.core.Widget);
+      var widget = new qx.ui.core.Widget();
       widget.set({
         decorator: separator
       });
@@ -1627,8 +1626,8 @@ qx.Class.define("qx.ui.core.Widget",
       var el = this._createContentElement();
 
       el.setAttribute("$$widget", this.toHashCode());
-      // make sure to allow all pointer events
-      el.setStyles({"touch-action": "none", "-ms-touch-action" : "none"});
+      //https://www.rocketrack.com/browse/LS-12796 - [#LS-12796] Web UI: Android tabled zoom and pan does not work right in DIS environment
+      el.setStyles({"touch-action": "auto", "-ms-touch-action" : "auto"});
 
       if (qx.core.Environment.get("qx.debug")) {
         el.setAttribute("qxClass", this.classname);

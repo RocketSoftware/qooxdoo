@@ -40,5 +40,36 @@ qx.Class.define("qx.event.Pool",
 
   construct : function() {
     this.base(arguments, 30);
+  },
+
+  members: {
+    //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+    poolObject: function(obj) {
+      this.base(arguments, obj);
+
+      if(obj._originalTarget) {
+        obj._originalTarget = null;
+      }
+
+      if(obj._currentTarget) {
+        obj._currentTarget = null;
+      }
+
+      if(obj._relatedTarget) {
+        obj._relatedTarget = null;
+      }
+
+      if(obj._target) {
+        obj._target = null;
+      }
+
+      if(obj._native) {
+        obj._native = null;
+      }
+
+      if(obj.cleanupData) {
+        obj.cleanupData();
+      }
+    }
   }
 });
