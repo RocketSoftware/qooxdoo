@@ -281,6 +281,8 @@ qx.Class.define("qx.event.handler.Input",
 
           if (elementType === "text" || elementType === "password") {
             qx.bom.Event.removeNativeListener(target, "keypress", this._onKeyPressWrapped);
+           //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+            this._onKeyPressWrapped = null;
           }
 
           try {
@@ -311,6 +313,8 @@ qx.Class.define("qx.event.handler.Input",
         if ((qx.core.Environment.get("engine.name") == "opera") || (qx.core.Environment.get("engine.name") == "mshtml")) {
           if (target.type === "text" || target.type === "password") {
             qx.bom.Event.removeNativeListener(target, "keypress", this._onKeyPressWrapped);
+            //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+            this._onKeyPressWrapped = null;
           }
         }
       }
@@ -330,6 +334,8 @@ qx.Class.define("qx.event.handler.Input",
           if (target.type === "text" || target.type === "password" || target.type === "textarea") {
             // Fixed input for delete and backspace key
             qx.bom.Event.removeNativeListener(target, "keyup", this._inputFixWrapper);
+            //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+            this._inputFixWrapper = null;
           }
         }
       },

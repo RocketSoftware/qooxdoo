@@ -147,7 +147,12 @@ qx.Class.define("qx.event.handler.Mouse",
     unregisterEvent : qx.core.Environment.get("os.name") === "ios" ?
       function(target, type, capture) {
         target["on" + type] = undefined;
-      } : (function() {return null;}),
+        //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+          this.__lastMouseDownTarget = null;
+      } : (function() {
+          this.__lastMouseDownTarget = null;
+          return null;
+      }),
 
 
 
@@ -381,7 +386,7 @@ qx.Class.define("qx.event.handler.Mouse",
        * In order to normalize middle button click events we
        * need to fire an artificial click event if the client
        * fires auxclick events for non primary buttons instead.
-       * 
+       *
        * See https://github.com/qooxdoo/qooxdoo/issues/9268
        */
       if (type == "auxclick" && domEvent.button == 1) {

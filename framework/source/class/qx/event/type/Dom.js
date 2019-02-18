@@ -50,6 +50,10 @@ qx.Class.define("qx.event.type.Dom",
     {
       var clone = this.base(arguments, nativeEvent, clone);
 
+      //LS-17447 keyboard buffer
+      clone.key = nativeEvent.key;
+      clone.char = nativeEvent.char;
+
       clone.shiftKey = nativeEvent.shiftKey;
       clone.ctrlKey = nativeEvent.ctrlKey;
       clone.altKey = nativeEvent.altKey;

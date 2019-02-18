@@ -93,6 +93,10 @@ qx.Class.define("qx.event.type.Data",
       return this.__data;
     },
 
+    //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+    cleanupData: function() {
+      this.__data = null;
+    },
 
     /**
      * The old data of the event sending this data event.

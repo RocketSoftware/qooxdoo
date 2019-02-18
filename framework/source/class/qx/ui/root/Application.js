@@ -82,18 +82,8 @@ qx.Class.define("qx.ui.root.Application",
     // prevent scrolling on touch devices
     this.addListener("touchmove", this.__stopScrolling, this);
 
-    // handle focus for iOS which seems to deny any focus action
-    if (qx.core.Environment.get("os.name") == "ios") {
-      this.getContentElement().addListener("tap", function(e) {
-        var widget = qx.ui.core.Widget.getWidgetByElement(e.getTarget());
-        while (widget && !widget.isFocusable()) {
-          widget = widget.getLayoutParent();
-        }
-        if (widget && widget.isFocusable()) {
-          widget.getContentElement().focus();
-        }
-      }, this, true);
-    }
+    //https://jira.rocketsoftware.com/browse/LS-10570 - [#LS-10570] Cannot open combo box when start client on iPad, android tablet
+    //removed listener to tap events on iOS
   },
 
 

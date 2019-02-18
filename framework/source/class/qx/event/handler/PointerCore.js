@@ -480,6 +480,11 @@ qx.Bootstrap.define("qx.event.handler.PointerCore", {
       }
     },
 
+    //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+    cleanupOnUnregister: function() {
+      this.__defaultTarget = null;
+    },
+
     /**
      * Dispose this object
      */

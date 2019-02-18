@@ -183,7 +183,7 @@ qx.Class.define("qx.event.handler.Keyboard",
           return qx.event.Registration.fireEvent(self.__window, "useraction", qx.event.type.Data, ["keyinput"]);
         });
       }
-      
+
       return tracker.promise;
     },
 
@@ -227,7 +227,7 @@ qx.Class.define("qx.event.handler.Keyboard",
           }
         }
       }
-      
+
       // Fire user action event
       // Needs to check if still alive first
       if (this.__window) {
@@ -235,7 +235,7 @@ qx.Class.define("qx.event.handler.Keyboard",
           return qx.event.Registration.fireEvent(self.__window, "useraction", qx.event.type.Data, [type]);
         });
       }
-      
+
       return tracker.promise;
     },
 
@@ -337,7 +337,7 @@ qx.Class.define("qx.event.handler.Keyboard",
         var type = domEvent.type;
 
         keyCode = domEvent.keyCode;
-        
+
         var tracker = {};
         var self = this;
 
@@ -356,7 +356,7 @@ qx.Class.define("qx.event.handler.Keyboard",
 
         // Store last type
         this.__lastUpDownType[keyCode] = type;
-        
+
         return tracker.promise;
       },
 

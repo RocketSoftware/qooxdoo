@@ -213,6 +213,10 @@ qx.Class.define("qx.event.handler.Focus",
     // interface implementation
     unregisterEvent : function(target, type, capture) {
       // Nothing needs to be done here
+      //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+      this.__previousActive = null;
+      this.__previousFocus = null;
+      this.__relatedTarget = null;
     },
 
     /*
@@ -483,10 +487,14 @@ qx.Class.define("qx.event.handler.Focus",
 
           this.__onNativeSelectStartWrapper = qx.lang.Function.listener(this.__onNativeSelectStart, this);
 
+          // https://jira.rocketsoftware.com/browse/LS-10570 - [#LS-10570] Cannot open combo box when start client on iPad, android tablet
+          // attached listeners to touch events instead of mouse events for ios
 
           // Register events
-          qx.bom.Event.addNativeListener(this._document, "mousedown", this.__onNativeMouseDownWrapper, true);
-          qx.bom.Event.addNativeListener(this._document, "mouseup", this.__onNativeMouseUpWrapper, true);
+          var isIos = (qx.core.Environment.get("os.name") === "ios");
+
+          qx.bom.Event.addNativeListener(this._document, isIos ? "touchstart" : "mousedown", this.__onNativeMouseDownWrapper, true);
+          qx.bom.Event.addNativeListener(this._document, isIos ? "touchend" : "mouseup", this.__onNativeMouseUpWrapper, true);
           qx.bom.Event.addNativeListener(this._document, "selectstart", this.__onNativeSelectStartWrapper, false);
 
           qx.bom.Event.addNativeListener(this._window, "DOMFocusOut", this.__onNativeFocusOutWrapper, true);
@@ -558,8 +566,11 @@ qx.Class.define("qx.event.handler.Focus",
 
         "default" : function()
         {
-          qx.bom.Event.removeNativeListener(this._document, "mousedown", this.__onNativeMouseDownWrapper, true);
-          qx.bom.Event.removeNativeListener(this._document, "mouseup", this.__onNativeMouseUpWrapper, true);
+          // https://jira.rocketsoftware.com/browse/LS-10570 - [#LS-10570] Cannot open combo box when start client on iPad, android tablet
+          var isIos = (qx.core.Environment.get("os.name") === "ios");
+
+          qx.bom.Event.removeNativeListener(this._document, isIos ? "touchstart" : "mousedown", this.__onNativeMouseDownWrapper, true);
+          qx.bom.Event.removeNativeListener(this._document, isIos ? "touchend" : "mouseup", this.__onNativeMouseUpWrapper, true);
           qx.bom.Event.removeNativeListener(this._document, "selectstart", this.__onNativeSelectStartWrapper, false);
 
           qx.bom.Event.removeNativeListener(this._window, "DOMFocusOut", this.__onNativeFocusOutWrapper, true);
@@ -746,7 +757,16 @@ qx.Class.define("qx.event.handler.Focus",
 
         "default" : function(domEvent)
         {
-          var target = qx.bom.Event.getTarget(domEvent);
+          var target = qx.bom.Event.getTarget(domEvent),
+              relatedTarget = qx.bom.Event.getRelatedTarget(domEvent),
+              widget = qx.ui.core.Widget.getWidgetByElement(target),
+              textField = widget && widget.getChildControl && widget.getChildControl("textfield", true);
+
+          // LS-16050 don't reset focus when it goes from child text field control
+          // todo check if it is still needed
+          if (textField && (relatedTarget === textField.getContentElement().getDomElement())) {
+            return;
+          }
 
           if (target === this.getFocus()) {
             this.resetFocus();
@@ -776,6 +796,16 @@ qx.Class.define("qx.event.handler.Focus",
         }
         else
         {
+          var relatedTarget = qx.bom.Event.getRelatedTarget(domEvent),
+              widget = qx.ui.core.Widget.getWidgetByElement(target),
+              textField = widget && widget.getChildControl && widget.getChildControl("textfield", true);
+
+          // LS-16050 don't reset focus when it goes from child text field control
+          // todo check if it is still needed
+          if (textField && (relatedTarget === textField.getContentElement().getDomElement())) {
+            return;
+          }
+
           if (target === this.getFocus()) {
             this.resetFocus();
           }
@@ -1245,7 +1275,7 @@ qx.Class.define("qx.event.handler.Focus",
       }
       // correct scroll position for iOS 7
       if (this.__needsScrollFix) {
-        window.scrollTo(0, 0);
+        //window.scrollTo(0, 0);
       }
     },
 
