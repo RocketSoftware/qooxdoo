@@ -212,7 +212,7 @@ qx.Bootstrap.define("qx.bom.client.Event",
           passiveSupported = false;
       }
       return passiveSupported;
-    },
+    }
 
   },
 
