@@ -237,6 +237,37 @@ qx.Class.define("qx.ui.table.pane.Scroller",
       event : "changeVerticalScrollBarVisible"
     },
 
+    /**
+     * The policy, when the horizontal scrollbar should be shown.
+     * <ul>
+     *   <li><b>auto</b>: Show scrollbar on demand</li>
+     *   <li><b>on</b>: Always show the scrollbar</li>
+     *   <li><b>off</b>: Never show the scrollbar</li>
+     * </ul>
+     */
+    scrollbarX :
+    {
+      check : ["auto", "on", "off"],
+      init : "auto",
+      themeable : true
+    },
+
+
+    /**
+     * The policy, when the horizontal scrollbar should be shown.
+     * <ul>
+     *   <li><b>auto</b>: Show scrollbar on demand</li>
+     *   <li><b>on</b>: Always show the scrollbar</li>
+     *   <li><b>off</b>: Never show the scrollbar</li>
+     * </ul>
+     */
+    scrollbarY :
+    {
+      check : ["auto", "on", "off"],
+      init : "auto",
+      themeable : true
+    },
+
     /** The table pane model. */
     tablePaneModel :
     {
@@ -394,7 +425,7 @@ qx.Class.define("qx.ui.table.pane.Scroller",
     __top : null,
 
     __timer : null,
-		
+
 		__focusIndicatorPointerDownListener: null,
 
 
@@ -2237,7 +2268,12 @@ qx.Class.define("qx.ui.table.pane.Scroller",
       // Create the mask
       var horBar = qx.ui.table.pane.Scroller.HORIZONTAL_SCROLLBAR;
       var verBar = qx.ui.table.pane.Scroller.VERTICAL_SCROLLBAR;
-      return ((forceHorizontal || horNeeded) ? horBar : 0) | ((preventVertical || !verNeeded) ? 0 : verBar);
+      var scrollXOn = this.getScrollbarX() === "on";
+      var scrollXOff = this.getScrollbarX() === "off";
+      var scrollYOn = this.getScrollbarY() === "on";
+      var scrollYOff = this.getScrollbarY() === "off";
+      return ((scrollXOn || forceHorizontal || horNeeded) && !scrollXOff ? horBar : 0)
+        | ((scrollYOff || preventVertical || !verNeeded) && !scrollYOn ? 0 : verBar);
     },
 
 
