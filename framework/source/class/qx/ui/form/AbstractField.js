@@ -584,6 +584,8 @@ qx.Class.define("qx.ui.form.AbstractField",
       // check for the filter
       if (this.getFilter() != null) {
         filteredValue = this._validateInput(casedValue);
+      } else {
+        filteredValue = casedValue;
       }
       if (filteredValue != value)
       {
