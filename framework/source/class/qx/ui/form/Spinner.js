@@ -686,14 +686,14 @@ qx.Class.define("qx.ui.form.Spinner",
     _onTextChange : function(e)
     {
       var textField = this.getChildControl("textfield");
-      var value;
+      var value, textFieldValue = textField.getValue();
 
       // if a number format is set
       if (this.getNumberFormat())
       {
         // try to parse the current number using the number format
         try {
-          value = this.getNumberFormat().parse(textField.getValue());
+          value = this.getNumberFormat().parse(textFieldValue);
         } catch(ex) {
           // otherwise, process further
         }
@@ -702,7 +702,7 @@ qx.Class.define("qx.ui.form.Spinner",
       if (value === undefined)
       {
         // try to parse the number as a float
-        value = parseFloat(textField.getValue());
+        value = parseFloat(textFieldValue);
       }
 
       // if the result is a number
@@ -717,7 +717,9 @@ qx.Class.define("qx.ui.form.Spinner",
 
         // If value is the same than before, call directly _applyValue()
         if (value === this.__lastValidValue) {
+          if(textFieldValue !== "-0" || !e) {
           this._applyValue(this.__lastValidValue);
+          }
         } else {
           this.setValue(value);
         }
@@ -725,7 +727,9 @@ qx.Class.define("qx.ui.form.Spinner",
       else
       {
         // otherwise, reset the last valid value
+        if(textFieldValue !== "-" || !e) {
         this._applyValue(this.__lastValidValue, undefined);
+      }
       }
     },
 
