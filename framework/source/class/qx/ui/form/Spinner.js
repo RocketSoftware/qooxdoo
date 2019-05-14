@@ -221,6 +221,14 @@ qx.Class.define("qx.ui.form.Spinner",
       nullable : true
     },
 
+    /** The value to use when a non-number (empty string or alpha characters) was entered. */
+    valueForInvalidValue:
+    {
+      check : "this._checkValueForInvalidValue(value)",
+      nullable : true,
+      init : null
+    },
+
     // overridden
     allowShrinkY :
     {
@@ -380,6 +388,10 @@ qx.Class.define("qx.ui.form.Spinner",
       } else {
         this._updateButtons();
       }
+
+      if (this.getValueForInvalidValue() != null && this.getValueForInvalidValue() < value) {
+        this.setValueForInvalidValue(value);
+      }
     },
 
 
@@ -402,6 +414,10 @@ qx.Class.define("qx.ui.form.Spinner",
         this.setValue(value);
       } else {
         this._updateButtons();
+      }
+
+      if (this.getValueForInvalidValue() != null && this.getValueForInvalidValue() > value) {
+        this.setValueForInvalidValue(value);
       }
     },
 
@@ -434,6 +450,22 @@ qx.Class.define("qx.ui.form.Spinner",
       return typeof value === "number" && value >= this.getMinimum() && value <= this.getMaximum();
     },
 
+    /**
+     * Check whether the value being applied is allowed. The value can be empty. If not, then it must be a
+     * number between min/max value.
+     *
+     * @param value {var}
+     *   The value to use in case of an invalid value
+     * @return {Boolean}
+     *   <i>true</i> if the value is allowed;
+     *   <i>false> otherwise.
+     */
+    _checkValueForInvalidValue : function(value) {
+      if(value !== null) {
+        return this._checkValue(value);
+      }
+      return true;
+    },
 
     /**
      * Apply routine for the value property.
@@ -463,7 +495,6 @@ qx.Class.define("qx.ui.form.Spinner",
         textField.setValue("");
       }
     },
-
 
     /**
      * Apply routine for the editable property.<br/>
@@ -728,8 +759,12 @@ qx.Class.define("qx.ui.form.Spinner",
       {
         // otherwise, reset the last valid value
         if(textFieldValue !== "-" || !e) {
-        this._applyValue(this.__lastValidValue, undefined);
-      }
+          var valForInvalidValue = this.getValueForInvalidValue();
+          if(valForInvalidValue !== null) {
+            this.setValue(valForInvalidValue);  // Will also trigger a 'change' event
+          }
+          this._applyValue(this.__lastValidValue, undefined);
+        }
       }
     },
 
