@@ -1,23 +1,7 @@
 #!/bin/bash
-
 set -o errexit -o nounset
 
 cd $TRAVIS_BUILD_DIR
-
-declare -r SSH_FILE="$(mktemp -u $HOME/.ssh/XXXXX)"
-openssl aes-256-cbc \
-  -K $encrypted_774cfba6afab_key \
-  -iv $encrypted_774cfba6afab_iv \
-  -in ".travis/github_deploy_key.enc" \
-  -out "$SSH_FILE" -d
-
-
-# Enable SSH authentication
-chmod 600 "$SSH_FILE" \
-  && printf "%s\n" \
-       "Host github.com" \
-       "  IdentityFile $SSH_FILE" \
-       "  LogLevel ERROR" >> ~/.ssh/config
 
 TARGET="devel"
 MASTER="master"
@@ -27,11 +11,12 @@ rev=$(git rev-parse --short HEAD)
 mkdir deploy && cd deploy
 
 git init
-git config --global user.name "Travis CI deploy"
-git config --global user.email "no-reply@qooxdoo.org"
-git config --global push.default simple
+git config user.name "Travis CI deploy"
+git config user.email "no-reply@qooxdoo.org"
+git config push.default simple
 
-git remote add upstream "git@github.com:qooxdoo/qooxdoo.github.io.git"
+GIT_IO_URL="https://$GH_TOKEN@github.com/qooxdoo/qooxdoo.github.io.git"
+git remote add upstream $GIT_IO_URL
 git fetch --depth 10 upstream
 git merge upstream/master
 
@@ -47,18 +32,12 @@ if [ "$TRAVIS_TAG" != "" ]; then
 fi
 
 cd $TRAVIS_BUILD_DIR
-.travis/make-release-sdk
 .travis/build-site
+.travis/build-site-v6
 
 cd deploy
 rm -rf "$TARGET" &> /dev/null
 cp -a ../build "$TARGET"
-
-# Install potentially built master sdk zip
-if [ "$TRAVIS_BRANCH" = "$MASTER" -a "$TRAVIS_TAG" = "" ]; then
-  RELEASE_PKG_FILE=$(ls ../dist/*.zip)
-  cp $RELEASE_PKG_FILE qooxdoo-sdk-master.zip
-fi
 
 # Maintain the current link
 if [ $CURRENT = 1 ]; then
@@ -74,7 +53,7 @@ git commit -m "Refresh site at ${rev}"
 git push -q upstream HEAD:master
 
 # Do a regular checkout and make a dummy commit
-git clone --depth 10 -q git@github.com:qooxdoo/qooxdoo.github.io.git tmp
+git clone --depth 10 -q $GIT_IO_URL tmp
 cd tmp
 echo $rev > revision
 git add revision
