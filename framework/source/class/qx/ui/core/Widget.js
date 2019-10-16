@@ -1060,10 +1060,9 @@ qx.Class.define("qx.ui.core.Widget",
           var innerWidth = width - inset.left - inset.right;
           var innerHeight = height - inset.top - inset.bottom;
 
-          var decorator = this.getDecorator();
           var decoratorPadding = {left: 0, right: 0, top: 0, bottom: 0};
+          var decorator = qx.theme.manager.Decoration.getInstance().resolve(this.getDecorator());
           if (decorator) {
-            decorator = qx.theme.manager.Decoration.getInstance().resolve(decorator);
             decoratorPadding = decorator.getPadding();
           }
 
@@ -1407,9 +1406,15 @@ qx.Class.define("qx.ui.core.Widget",
       var right = this.getPaddingRight();
       var bottom = this.getPaddingBottom();
       var left = this.getPaddingLeft();
-      if (this.getDecorator()) {
-        var decorator = qx.theme.manager.Decoration.getInstance().resolve(this.getDecorator());
-        var inset = decorator.getInsets();
+      var inset = {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+      };
+      var decorator = qx.theme.manager.Decoration.getInstance().resolve(this.getDecorator());
+      if (decorator) {
+        inset = decorator.getInsets();
 
         if (qx.core.Environment.get("qx.debug"))
         {
@@ -2251,8 +2256,7 @@ qx.Class.define("qx.ui.core.Widget",
      */
     __updateContentPadding : function(style, value) {
       var content = this.getContentElement();
-      var decorator = this.getDecorator();
-      decorator = qx.theme.manager.Decoration.getInstance().resolve(decorator);
+      var decorator = qx.theme.manager.Decoration.getInstance().resolve(this.getDecorator());
       if (decorator) {
         var direction = qx.Bootstrap.firstLow(style.replace("padding", ""));
         value += decorator.getPadding()[direction] || 0;
