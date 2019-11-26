@@ -108,6 +108,19 @@ qx.Class.define("qx.ui.basic.Image",
       apply : "_applyScale"
     },
 
+    /**
+     * Whether the image should be repeated inside the given dimensions
+     * Can be "repeat", "repeat-x", "repeat-y"
+     *
+     * Only applied when scaling is disabled.
+     */
+    repeat: {
+      check : "String",
+      init : "no-repeat",
+      event : "changeRepeat",
+      themeable : true,
+      apply: "_applyRepeat"
+    },
 
     // overridden
     appearance :
@@ -337,9 +350,16 @@ qx.Class.define("qx.ui.basic.Image",
 
     // property apply
     _applyScale : function(value) {
-      this._styleSource();
+      if(this.getSource()) {
+        this._styleSource();
+      }
     },
 
+    _applyRepeat: function(value) {
+      if(this.getSource()) {
+        this._styleSource();
+      }
+    },
 
     /**
      * Remembers the mode to keep track which contentElement is currently in use.
@@ -499,7 +519,7 @@ qx.Class.define("qx.ui.basic.Image",
         (parseInt(qx.core.Environment.get("engine.version"), 10) < 9 ||
          qx.core.Environment.get("browser.documentmode") < 9))
       {
-        var repeat = this.getScale() ? "scale" : "no-repeat";
+        var repeat = this.getScale() ? "scale" : this.getRepeat();
         element.tagNameHint = qx.bom.element.Decoration.getTagName(repeat, source);
       }
 
@@ -535,6 +555,9 @@ qx.Class.define("qx.ui.basic.Image",
         this.__fireLoadEvent();
       } else {
         this.__loadUnmanagedImage(contentEl, source);
+      }
+      if(!this.getScale()) {
+        contentEl._setProperty("repeat", this.getRepeat());
       }
     },
 
@@ -963,7 +986,7 @@ qx.Class.define("qx.ui.basic.Image",
           var hasGradient = (decorator.getStartColor() && decorator.getEndColor());
           var hasBackground = decorator.getBackgroundImage();
           if (hasGradient || hasBackground) {
-            var repeat = this.getScale() ? "scale" : "no-repeat";
+            var repeat = this.getScale() ? "scale" : this.getRepeat();
 
             // get the style attributes for the given source
             var attr = qx.bom.element.Decoration.getAttributes(source, repeat);
@@ -973,7 +996,7 @@ qx.Class.define("qx.ui.basic.Image",
             var combinedStyles = {
               "backgroundImage": attr.style.backgroundImage,
               "backgroundPosition": (attr.style.backgroundPosition || "0 0"),
-              "backgroundRepeat": (attr.style.backgroundRepeat || "no-repeat")
+              "backgroundRepeat": (attr.style.backgroundRepeat || this.getRepeat())
             };
 
             if (hasBackground) {
@@ -986,7 +1009,9 @@ qx.Class.define("qx.ui.basic.Image",
               combinedStyles["backgroundRepeat"] += ", no-repeat";
             }
 
-            combinedStyles["backgroundImage"] += "," + (decoratorStyle["background-image"] || decoratorStyle["background"]);
+            var decoratorStyleBgImage = (decoratorStyle["background-image"] || decoratorStyle["background"]);
+            el.setDecoratorStyleBackgroundImage(decoratorStyleBgImage);
+            combinedStyles["backgroundImage"] += "," + decoratorStyleBgImage;
 
             // apply combined background images
             el.setStyles(combinedStyles);

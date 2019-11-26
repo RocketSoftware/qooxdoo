@@ -36,6 +36,7 @@ qx.Class.define("qx.html.Image",
   {
     __paddingTop : null,
     __paddingLeft: null,
+    __decoratorStyleBackgroundImage: null,
 
 
     // this member variable is only used for IE browsers to be able
@@ -61,6 +62,10 @@ qx.Class.define("qx.html.Image",
       if (this.getNodeName() == "div") {
         this.setStyle("backgroundPosition", paddingLeft + "px " + paddingTop + "px");
       }
+    },
+
+    setDecoratorStyleBackgroundImage: function(decoratorStyleBgImage) {
+      this.__decoratorStyleBackgroundImage = decoratorStyleBgImage;
     },
 
 
@@ -92,7 +97,7 @@ qx.Class.define("qx.html.Image",
 
         var source = this._getProperty("source");
         var scale = this._getProperty("scale");
-        var repeat = scale ? "scale" : "no-repeat";
+        var repeat = scale ? "scale" : this._getProperty("repeat") || "no-repeat";
 
         // Source can be null in certain circumstances.
         // See bug #3701 for details.
@@ -104,6 +109,11 @@ qx.Class.define("qx.html.Image",
           styles.paddingLeft = this.__paddingLeft;
 
           qx.bom.element.Decoration.update(elem, source, repeat, styles);
+          if(this.__decoratorStyleBackgroundImage) {
+            this.__styleValues["backgroundImage"] += "," + this.__decoratorStyleBackgroundImage;
+            //need to call setStyles
+            qx.bom.element.Style.setStyles(elem, {"backgroundImage": this.__styleValues["backgroundImage"]});
+          }
         }
       }
     },
@@ -124,7 +134,7 @@ qx.Class.define("qx.html.Image",
     _createDomElement : function()
     {
       var scale = this._getProperty("scale");
-      var repeat = scale ? "scale" : "no-repeat";
+      var repeat = scale ? "scale" : this._getProperty("repeat") || "no-repeat";
 
       if ((qx.core.Environment.get("engine.name") == "mshtml"))
       {
