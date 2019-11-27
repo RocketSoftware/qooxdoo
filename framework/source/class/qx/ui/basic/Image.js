@@ -726,7 +726,11 @@ qx.Class.define("qx.ui.basic.Image",
           }
           var currentEl = this.__getContentElement();
           newEl.tagNameHint = hint;
-          newEl.setAttribute("class", currentEl.getAttribute("class"));
+
+          var currentAttributes = currentEl.getAllAttributes();
+          for(var attrName in currentAttributes) {
+            newEl.setAttribute(attrName, currentAttributes[attrName]);
+          }
 
           // Flush elements to make sure the DOM elements are created.
           qx.html.Element.flush();

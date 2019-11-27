@@ -561,7 +561,7 @@ qx.Class.define("qx.html.Element",
       	this.__element.$$widget = "";
       	delete this.__element.$$widgetObject;
     	}
-    	
+
       if (qx.core.Environment.get("module.objectid")) {
         this.updateObjectId();
       }
@@ -795,7 +795,7 @@ qx.Class.define("qx.html.Element",
       SUPPORT FOR ATTRIBUTE/STYLE/EVENT FLUSH
     ---------------------------------------------------------------------------
     */
-    
+
     updateObjectId: function() {
       // Copy Object Id
       if (qx.core.Environment.get("module.objectid")) {
@@ -818,7 +818,7 @@ qx.Class.define("qx.html.Element",
     _copyData : function(fromMarkup)
     {
       var elem = this.__element;
-      
+
       // Copy attributes
       var data = this.__attribValues;
       if (data)
@@ -2374,9 +2374,14 @@ qx.Class.define("qx.html.Element",
       return this.__styleValues || null;
     },
 
-
-
-
+    /**
+     * Returns a map of all atributes. Do not modify the result map!
+     *
+     * @return {Map} All attributes or <code>null</code> when none are configured.
+     */
+    getAllAttributes: function() {
+      return this.__attribValues || null;
+    },
 
     /*
     ---------------------------------------------------------------------------
