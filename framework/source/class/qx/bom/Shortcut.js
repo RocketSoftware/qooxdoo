@@ -129,6 +129,7 @@ qx.Class.define("qx.bom.Shortcut",
   {
     __modifier : "",
     __key : "",
+    __isExecutableDelegate : null,
 
 
     /*
@@ -154,7 +155,7 @@ qx.Class.define("qx.bom.Shortcut",
      */
     __onKeyDown : function(event)
     {
-      if (this.getEnabled() && this.__matchesKeyEvent(event))
+      if (this.getEnabled() && this.__matchesKeyEvent(event) && this.isExecutable())
       {
         if (!this.isAutoRepeat()) {
           this.execute(event.getTarget());
@@ -171,7 +172,7 @@ qx.Class.define("qx.bom.Shortcut",
      */
     __onKeyPress : function(event)
     {
-      if (this.getEnabled() && this.__matchesKeyEvent(event))
+      if (this.getEnabled() && this.__matchesKeyEvent(event) && this.isExecutable())
       {
         if (this.isAutoRepeat()) {
           this.execute(event.getTarget());
@@ -181,6 +182,20 @@ qx.Class.define("qx.bom.Shortcut",
     },
 
 
+    setIsExecutableDelegate : function(delegate) {
+      if (delegate && qx.lang.Type.isFunction(delegate)) {
+        this.__isExecutableDelegate = delegate;
+      } else {
+        this.__isExecutableDelegate = null;
+      }
+    },
+
+    isExecutable: function() {
+      if (this.__isExecutableDelegate) {
+        return this.__isExecutableDelegate();
+      }
+      return true;
+    },
 
     /*
     ---------------------------------------------------------------------------
@@ -439,6 +454,6 @@ qx.Class.define("qx.bom.Shortcut",
     // this will remove the event listener
     this.setEnabled(false);
 
-    this.__modifier = this.__key = null;
+    this.__modifier = this.__key = this.__isExecutableDelegate = null;
   }
 });
