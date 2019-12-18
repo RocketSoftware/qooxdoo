@@ -182,6 +182,11 @@ qx.Class.define("qx.bom.Shortcut",
     },
 
 
+    /**
+     * Sets a delegate method to be called when isExecutable() is called.
+     *
+     * @param delegate {Function} The function to set
+     */
     setIsExecutableDelegate : function(delegate) {
       if (delegate && qx.lang.Type.isFunction(delegate)) {
         this.__isExecutableDelegate = delegate;
@@ -190,6 +195,11 @@ qx.Class.define("qx.bom.Shortcut",
       }
     },
 
+    /**
+     * This method is called before the shortcut is executed. When a delegate is set this
+     * delegate is called to verify if the shortcut should have been active at the time of calling.
+     * This allows to define more fine grained if the shortcut can be executed or not.
+     */
     isExecutable: function() {
       if (this.__isExecutableDelegate) {
         return this.__isExecutableDelegate();
