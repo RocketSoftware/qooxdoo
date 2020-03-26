@@ -860,11 +860,7 @@ qx.Class.define("qx.ui.table.pane.Scroller",
         var max = Math.max(0, scrollSize - paneSize.height);
 
         scrollBar.setMaximum(max);
-        if(scrollSize - paneSize.height < rowHeight) {
-          scrollBar.setKnobFactor(1);
-        } else {
-          scrollBar.setKnobFactor(paneSize.height / scrollSize);
-        }
+        scrollBar.setKnobFactor(paneSize.height / scrollSize);
 
         var pos = scrollBar.getPosition();
         scrollBar.setPosition(Math.min(pos, max));
