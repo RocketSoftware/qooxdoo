@@ -113,7 +113,7 @@ qx.Bootstrap.define("qx.bom.Viewport",
       var doc = win.document;
 
       // [BUG #7785] Document element's clientHeight is calculated wrong on iPad iOS7
-      if(qx.core.Environment.get("os.name") == "ios" && window.innerHeight != doc.documentElement.clientHeight) {
+      if(qx.core.Environment.get("os.name") === "ios" && qx.core.Environment.get("os.version").substring(0,1) === "7") {
         return window.innerHeight;
       }
 
