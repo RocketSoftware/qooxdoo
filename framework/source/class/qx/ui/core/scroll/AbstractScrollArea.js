@@ -527,6 +527,15 @@ qx.Class.define("qx.ui.core.scroll.AbstractScrollArea",
       var showX = this._isChildControlVisible("scrollbar-x");
       var showY = this._isChildControlVisible("scrollbar-y");
 
+      //https://jira.rocketsoftware.com/browse/LS-21550 - [#LS-21550] LegaSuite Web does not swipe-scroll, pinch and zoom well on Android phone
+      if(qx.core.Environment.get("os.name") === "android") {
+        if(showX || showY) {
+          this.getContentElement().setStyles({"touch-action": "pinch-zoom", "-ms-touch-action" : "pinch-zoom"});
+        } else {
+          this.getContentElement().setStyles({"touch-action": "auto", "-ms-touch-action" : "auto"});
+        }
+      }
+
       if (!showY) {
         this.scrollToY(0);
       }

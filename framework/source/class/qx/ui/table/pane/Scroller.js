@@ -503,6 +503,7 @@ qx.Class.define("qx.ui.table.pane.Scroller",
             alignY: "bottom"
           });
           control.addListener("scroll", this._onScrollX, this);
+          control.addListener("changeVisibility", this.__onChangeScrollbarVisibility, this);
 
           if (this.__clipperContainer != null) {
             control.setMinHeight(qx.ui.core.scroll.AbstractScrollArea.DEFAULT_SCROLLBAR_WIDTH);
@@ -515,6 +516,7 @@ qx.Class.define("qx.ui.table.pane.Scroller",
         case "scrollbar-y":
           control = this._createScrollBar("vertical");
           control.addListener("scroll", this._onScrollY, this);
+          control.addListener("changeVisibility", this.__onChangeScrollbarVisibility, this);
 
           if (this.__clipperContainer != null) {
             this.__clipperContainer.add(control, {right: 0, bottom: 0, top: 0});
@@ -527,6 +529,20 @@ qx.Class.define("qx.ui.table.pane.Scroller",
       return control || this.base(arguments, id);
     },
 
+    // https://jira.rocketsoftware.com/browse/LS-21550 - [#LS-21550] LegaSuite Web does not swipe-scroll, pinch and zoom well on Android phone
+    __onChangeScrollbarVisibility : function(e)
+    {
+      var showX = this._isChildControlVisible("scrollbar-x");
+      var showY = this._isChildControlVisible("scrollbar-y");
+
+      if(qx.core.Environment.get("os.name") === "android") {
+        if(showX || showY) {
+          this.getContentElement().setStyles({"touch-action": "pinch-zoom", "-ms-touch-action" : "pinch-zoom"});
+        } else {
+          this.getContentElement().setStyles({"touch-action": "auto", "-ms-touch-action" : "auto"});
+        }
+      }
+    },
 
     // property modifier
     _applyHorizontalScrollBarVisible : function(value, old) {
