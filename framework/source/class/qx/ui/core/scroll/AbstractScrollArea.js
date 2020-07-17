@@ -176,6 +176,10 @@ qx.Class.define("qx.ui.core.scroll.AbstractScrollArea",
 
   members :
   {
+    __defaultIos: "manipulation",
+    __defaultAndroid: "auto",
+    __pinchZoomOnly: "pinch-zoom",
+
     /*
     ---------------------------------------------------------------------------
       CHILD CONTROL SUPPORT
@@ -524,12 +528,21 @@ qx.Class.define("qx.ui.core.scroll.AbstractScrollArea",
 
       showX && showY ? this._showChildControl("corner") : this._excludeChildControl("corner");
 
+      //https://jira.rocketsoftware.com/browse/LS-21550 - [#LS-21550] LegaSuite Web does not swipe-scroll, pinch and zoom well on Android phone
+      if(qx.core.Environment.get("os.name") === "android") {
+        if(showX || showY) {
+          this.getContentElement().setStyles({"touch-action": this.__pinchZoomOnly, "-ms-touch-action" : this.__pinchZoomOnly});
+        } else {
+          this.getContentElement().setStyles({"touch-action": this.__defaultAndroid, "-ms-touch-action" : this.__defaultAndroid});
+        }
+      }
+
       if(this.getDisableBrowserScroll()) {
         if(qx.core.Environment.get("os.name") === "ios") {
           if(showX || showY) {
-            this.getContentElement().setStyles({"touch-action": "pinch-zoom", "-ms-touch-action" : "pinch-zoom"});
+            this.getContentElement().setStyles({"touch-action": this.__pinchZoomOnly, "-ms-touch-action" : this.__pinchZoomOnly});
           } else {
-            this.getContentElement().setStyles({"touch-action": "manipulation", "-ms-touch-action" : "manipulation"});
+            this.getContentElement().setStyles({"touch-action": this.__defaultIos, "-ms-touch-action" : this.__defaultIos});
           }
         }
       }
@@ -549,18 +562,18 @@ qx.Class.define("qx.ui.core.scroll.AbstractScrollArea",
       //https://jira.rocketsoftware.com/browse/LS-21550 - [#LS-21550] LegaSuite Web does not swipe-scroll, pinch and zoom well on Android phone
       if(qx.core.Environment.get("os.name") === "android") {
         if(showX || showY) {
-          this.getContentElement().setStyles({"touch-action": "pinch-zoom", "-ms-touch-action" : "pinch-zoom"});
+          this.getContentElement().setStyles({"touch-action": this.__pinchZoomOnly, "-ms-touch-action" : this.__pinchZoomOnly});
         } else {
-          this.getContentElement().setStyles({"touch-action": "auto", "-ms-touch-action" : "auto"});
+          this.getContentElement().setStyles({"touch-action": this.__defaultAndroid, "-ms-touch-action" : this.__defaultAndroid});
         }
       }
 
       if(this.getDisableBrowserScroll()) {
         if(qx.core.Environment.get("os.name") === "ios") {
           if(showX || showY) {
-            this.getContentElement().setStyles({"touch-action": "pinch-zoom", "-ms-touch-action" : "pinch-zoom"});
+            this.getContentElement().setStyles({"touch-action": this.__pinchZoomOnly, "-ms-touch-action" : this.__pinchZoomOnly});
           } else {
-            this.getContentElement().setStyles({"touch-action": "manipulation", "-ms-touch-action" : "manipulation"});
+            this.getContentElement().setStyles({"touch-action": this.__defaultIos, "-ms-touch-action" : this.__defaultIos});
           }
         }
       }
