@@ -151,6 +151,15 @@ qx.Class.define("qx.ui.core.scroll.AbstractScrollArea",
      */
     scrollbar : {
       group : [ "scrollbarX", "scrollbarY" ]
+    },
+
+    /**
+     * When set to true, this scrollable element will turn off browser scrolling handling
+     * when qx scrollbars are visible.
+     * Currently applied to ios only.
+     */
+    disableBrowserScroll : {
+      init: false
     }
   },
 
@@ -514,6 +523,16 @@ qx.Class.define("qx.ui.core.scroll.AbstractScrollArea",
       }
 
       showX && showY ? this._showChildControl("corner") : this._excludeChildControl("corner");
+
+      if(this.getDisableBrowserScroll()) {
+        if(qx.core.Environment.get("os.name") === "ios") {
+          if(showX || showY) {
+            this.getContentElement().setStyles({"touch-action": "pinch-zoom", "-ms-touch-action" : "pinch-zoom"});
+          } else {
+            this.getContentElement().setStyles({"touch-action": "manipulation", "-ms-touch-action" : "manipulation"});
+          }
+        }
+      }
     },
 
 
@@ -533,6 +552,16 @@ qx.Class.define("qx.ui.core.scroll.AbstractScrollArea",
           this.getContentElement().setStyles({"touch-action": "pinch-zoom", "-ms-touch-action" : "pinch-zoom"});
         } else {
           this.getContentElement().setStyles({"touch-action": "auto", "-ms-touch-action" : "auto"});
+        }
+      }
+
+      if(this.getDisableBrowserScroll()) {
+        if(qx.core.Environment.get("os.name") === "ios") {
+          if(showX || showY) {
+            this.getContentElement().setStyles({"touch-action": "pinch-zoom", "-ms-touch-action" : "pinch-zoom"});
+          } else {
+            this.getContentElement().setStyles({"touch-action": "manipulation", "-ms-touch-action" : "manipulation"});
+          }
         }
       }
 
