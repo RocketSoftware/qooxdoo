@@ -428,6 +428,9 @@ qx.Class.define("qx.ui.table.pane.Scroller",
 
 		__focusIndicatorPointerDownListener: null,
 
+    __defaultAndroid: "auto",
+    __pinchZoomOnly: "pinch-zoom",
+
 
     /**
      * The right inset of the pane. The right inset is the maximum of the
@@ -537,9 +540,9 @@ qx.Class.define("qx.ui.table.pane.Scroller",
 
       if(qx.core.Environment.get("os.name") === "android") {
         if(showX || showY) {
-          this.getContentElement().setStyles({"touch-action": "pinch-zoom", "-ms-touch-action" : "pinch-zoom"});
+          this.getContentElement().setStyles({"touch-action": this.__pinchZoomOnly, "-ms-touch-action" : this.__pinchZoomOnly});
         } else {
-          this.getContentElement().setStyles({"touch-action": "auto", "-ms-touch-action" : "auto"});
+          this.getContentElement().setStyles({"touch-action": this.__defaultAndroid, "-ms-touch-action" : this.__defaultAndroid});
         }
       }
     },
