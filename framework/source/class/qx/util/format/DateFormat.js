@@ -271,8 +271,29 @@ qx.Class.define("qx.util.format.DateFormat",
      */
     __getWeekInYear : function(date)
     {
-      // The following algorithm comes from http://www.salesianer.de/util/kalwoch.html
-      // Get the thursday of the week the date belongs to
+      var weekStart = qx.locale.Date.getWeekStart();
+      if(weekStart === 0) {
+        var weekStartIndex = 6;    //1st week of the year is the one that contains the 1st of January (7 + 0 - 1)
+        var cloneDate = new Date(date);
+        var weekOffset = this.__firstWeekOffset(cloneDate.getFullYear(), weekStart, weekStartIndex);
+        var week = Math.floor((this.__dayCountOfYear(cloneDate) - weekOffset - 1) / 7) + 1;
+        var resWeek;
+        var weeksInYear = this.__weeksInYear(cloneDate.getFullYear(), weekStart, weekStartIndex);
+
+        if (week < 1) {
+          resWeek = week + this.__weeksInYear(cloneDate.getFullYear() - 1, weekStart, weekStartIndex);
+        }
+        else if (week > weeksInYear) {
+          resWeek = week - weeksInYear;
+        }
+        else {
+          resWeek = week;
+        }
+        return resWeek;
+      }
+
+        // The following algorithm comes from http://www.salesianer.de/util/kalwoch.html
+        // Get the thursday of the week the date belongs to
       var thursdayDate = this.__thursdayOfSameWeek(date);
 
       // Get the year the thursday (and therefore the week) belongs to
@@ -284,6 +305,54 @@ qx.Class.define("qx.util.format.DateFormat",
 
       // Calculate the calendar week
       return Math.floor(1.5 + (thursdayDate.getTime() - thursdayWeek1.getTime()) / 86400000 / 7);
+    },
+
+    __firstWeekOffset: function(year, weekStart, weekStartIndex) {
+      var fwd = 7 + weekStart - weekStartIndex;
+      var fwdlw = (7 + this.__createUTCDate(year, 0, fwd).getUTCDay() - weekStart) % 7;
+      return -fwdlw + fwd - 1;
+    },
+
+    __createUTCDate: function(y, m, d) {
+      var date;
+      if (y < 100 && y >= 0) {
+        date = new Date(Date.UTC.apply(null, [y + 400, m, d]));
+        if (isFinite(date.getUTCFullYear())) {
+          date.setUTCFullYear(y);
+        }
+      }
+      else {
+        date = new Date(Date.UTC.apply(null, [y, m, d]));
+      }
+      return date;
+    },
+
+    __weeksInYear: function(year, weekStart, weekStartIndex) {
+      var weekOffset = this.__firstWeekOffset(year, weekStart, weekStartIndex);
+      var weekOffsetNext = this.__firstWeekOffset(year + 1, weekStart, weekStartIndex);
+      return (this.__daysInYear(year) - weekOffset + weekOffsetNext) / 7;
+    },
+
+    __daysInYear: function(year) {
+      return this.__isLeapYear(year) ? 366 : 365;
+    },
+
+    __dayCountOfYear: function(date) {
+      var dayOfYear = Math.round((this.__startOf('day', date) - this.__startOf('year', date)) / 864e5) + 1;
+      return dayOfYear;
+    },
+
+    __startOf: function(units, date) {
+      var time = 0;
+      switch (units) {
+        case 'year':
+          time = new Date(date.getFullYear(), 0, 1).valueOf();
+          break;
+        case 'day':
+          time = new Date(date.getFullYear(), date.getMonth(), date.getDate()).valueOf();
+          break;
+      }
+      return time;
     },
 
     /**
