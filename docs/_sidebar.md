@@ -1,82 +1,70 @@
-- Overview
-  - [Contents](/contents.md)
+- [Overview](/contents.md)
   - [Getting Started](/?id=getting-started)
   - [Qooxdoo Apps](/apps.md)
+  - [Release Notes](/release-notes.7.0.md)
+  - [Roadmap](/roadmap.md)
   - [About](/about.md)
+  - [History](/history.md)
+  - [Contribute](/contribute.md)
 
-- [**Qooxdoo Core**](/core/)
-
-  - [Introduction](/core/oo_introduction.md)
-  - [Feature summery](/core/oo_feature_summary.md)
-  
-  - Object Orientation
-    - [Classes](/core/classes.md)
-      - [Quickref](/core/class_quickref.md)
-    - [Interfaces](/core/interfaces.md)
-      - [Quickref](/core/interface_quickref.md)
-    - [Mixins](/core/mixins.md)
-      - [Quickref](/core/mixin_quickref.md)
+- [Qooxdoo Core](/core/)
+  - [Object Orientation](/core/oo_feature_summary.md)
+    - [Introduction into OO](/core/oo_introduction.md)
+    - [Classes](/core/classes.md)     
+    - [Interfaces](/core/interfaces.md) 
+    - [Mixins](/core/mixins.md) 
     - [Annotations](/core/annotations.md)
-    - [Arrays](/core/array.md)
-    - [Data binding](/core/data_binding/)
-    - [Promises](/core/promises.md)
-
-  - Properties
-    - [Properties](/core/understanding_properties.md)
-      - [Quickref](/core/properties_quickref.md)
+    - [Class system quickrefs](/core/class_quickref.md)
+        - [Classes](/core/class_quickref.md)
+        - [Interfaces](/core/interface_quickref.md)
+        - [Mixins](/core/mixin_quickref.md)
+  - [Properties](/core/understanding_properties.md)
     - [Defining properties](/core/defining_properties.md)
     - [Behavior](/core/property_behavior.md)
     - [Features](/core/property_features.md)
-  
-  - [Environent](/core/environment.md)
-  
-  - Interaction Events
+    - [Property Quickref](/core/properties_quickref.md)
+  - [Environment](/core/environment.md)
+  - [Interaction Events](/core/pointer.md)
     - [Pointer](/core/pointer.md)
     - [Gestures](/core/gestures.md)
+  - [Arrays](/core/array.md)
+  - [Data binding](/core/data_binding/)
+    - [Concept](/core/data_binding/data_binding.md)
+    - [Single value binding](/core/data_binding/single_value_binding.md)
+    - [Controller](/core/data_binding/controller.md)
+    - [Stores](/core/data_binding/stores.md)
+    - [Models](/core/data_binding/models.md)
+    - [Events](/core/data_binding/events.md)
+  - [Promises](/core/promises.md)
   
-
-- Qooxdoo for Desktop
-
-  - Qooxdoo UI
+- [Qooxdoo for Desktop](/desktop/)
+  - [Qooxdoo UI](/desktop/gui/)
     - [Interaction](/desktop/gui/interaction.md)
     - [Resources](/desktop/gui/resources.md)
     - [Selection](/desktop/gui/selection.md)
     - [Drag'n'Drop](/desktop/gui/dragdrop.md)
     - [Forms](/desktop/gui/forms.md)
     - [Menus](/desktop/gui/menus.md)
-    - [Window Managment](/desktop/gui/window_management.md)
+    - [Window Management](/desktop/gui/window_management.md)
     - [Table Styling](/desktop/gui/table_styling.md)
-
- - Themes
-    - [Theming](/desktop/gui/theming.md)
+    - [Event layer](/desktop/gui/event_layer_impl.md)
+    - [HTML element handling](/desktop/gui/html.md)
+    - [Focus handling](/desktop/gui/focus.md)      
+ - [Theming](/desktop/gui/theming.md)
     - [Appearance](/desktop/gui/appearance.md)
     - [Custom themes](/desktop/gui/themes.md)
-    - [Decorators](/desktop/gui/themes.md#qooxdoo-theme-decorators)
-
-  - Layouts
-    - [Introduction](/desktop/layout/)
+    - [Decorators](/desktop/gui/themes.md#Qooxdoo-theme-decorators)
+  - [Layouts](/desktop/layout/)
     - [Reference](/desktop/layout/reference.md)
     - [Alphabetic list](/desktop/layout/layout_list.md)
-  
-  - Qooxdoo Widgets
-    - [Introduction](/desktop/widget/)
+  - [Qooxdoo Widgets](/desktop/widget/introduction.md)
     - [Custom widgets](/desktop/gui/customwidgets.md)
     - [Reference](/desktop/widget/reference.md)
     - [Alphabetic list](/desktop/widget/widget_list.md)
 
-  - Technical Concepts
-    - [Event layer](/desktop/gui/event_layer_impl.md)
-    - [HTML element handling](/desktop/gui/html.md)
-    - [Focus handling](/desktop/gui/focus.md)  
+- [Qooxdoo on the Server](/server/)
 
-
-- Qooxdoo for Node
-  - [Introduction](/server/)
-  - [Getting Started](/server/getting_started.md)
-  - [Requirements](/server/requirements.md)  
-
-- Qooxdoo Mobile
-  - [Introduction](/mobile/)
+- [Qooxdoo Mobile](/mobile/)
   - [Overview](/mobile/mobile_overview.md)
   - [Requirements](/mobile/requirements.md)
   - [Getting Started](/mobile/getting_started.md)
@@ -86,34 +74,44 @@
   - [Resolution and Pixel Density](/mobile/resolution.md)
   - [Theming](/mobile/theming.md)
 
-
-- Communication
-
+- [Communication](/communication/)
   - [REST](/communication/rest.md)
-  - [Server Wirter Guide](/communication/rpc_server_writer_guide.md)
-  - [Fake Server](/communication/fake_server.md)
   - [Remote IO](/communication/remote_io.md)
   - [Request IO](/communication/request_io.md)
   - [JSON RPC](/communication/rpc.md)
 
-- Testing (tbd)
+- [Development](/development/)
+  - ["qx" CLI commands](/development/cli/commands.md)
+  - [The Qooxdoo Compiler](/development/compiler/)
+      - [Migrating to the `qx` toolchain](/development/compiler/migration.md)
+      - [Compiler Configuration](/development/compiler/configuration/)
+        - [Manifest.json](/development/compiler/configuration/Manifest.md)
+        - [compile.json](/development/compiler/configuration/compile.md)
+        - [Configuration API](/development/compiler/configuration/api.md)
+      - [Advanced compiler topics](/development/compiler/internals/)
+        - [Compiler API](API.md) 
+        - [Events](Events.md)
+        - [App Start](CustomAppStartup.md)
+        - [App Loading](LoaderUrls.md)
+        - [SASS compilation](Sass.md)
+        - [Metadata](MetaData.md)
+        - [Dependencies](Dependencies.md)
+  - [Writing API Documentation](/development/apidoc/)
+  - [Testing](/development/testing/)
+    - [Unit Testing](/development/testing/unit_testing.md)
+    - [GUI Testing](/development/testing/gui_testing.md)
+  - [Package system](/development/cli/packages.md)
+  - [How to ...](/development/howto/)
+    - [Logging](/development/howto/logging.md)
+    - [Internationalization](/development/howto/internationalization.md)
+    - [Using Icon Fonts](/development/howto/icon_fonts.md)
+    - [Memory Management](/development/howto/memory_management.md)
+    - [Application Parts](/development/howto/parts.md)
+    - [Using non-Qooxdoo libraries](/development/howto/using_non_qx_libs.md)
+  - [Contributing to Qooxdoo](/development/contribute.md)
 
-- Deployment (tbd)
-
-- Development
-  - ["qx" CLI commands](/compiler/cli/commands.md)
-  - [Package system](/compiler/cli/packages.md)
-  - [Compiler Configuration](/compiler/configuration/overview.md)
-    - [Manifest.json](/compiler/configuration/Manifest.md)
-    - [compile.json](/compiler/configuration/compile.md)
-    - [API](/compiler/configuration/api.md)
-  - [Advanced compiler topics](/compiler/internals/)
-
-
-- Tutorials
-
-  - Desktop Twitter App
-    - [Introduction](/tutorial/twitter/)
+- [Tutorials](/tutorial/)
+  - [Desktop Twitter App](/tutorial/twitter/)
     - [1. Getting Started](/tutorial/twitter/tutorial-part-1.md)
     - [2. Finishing the UI](/tutorial/twitter/tutorial-part-2.md)
     - [3. Talking to the Server](/tutorial/twitter/tutorial-part-3.md)
@@ -123,5 +121,7 @@
     - [7. Translations](/tutorial/twitter/tutorial-part-7.md)
     - [8. Unit Testing](/tutorial/twitter/tutorial-part-8.md)
     - [9. Virtual Lists](/tutorial/twitter/tutorial-part-9.md)
-  - [**Qooxdoo Mobile App**](/mobile/tutorial.md)
+  - [Qooxdoo Mobile App](/mobile/tutorial.md)
 
+- [Build Status](https://qooxdoo.org/status/)
+- [Package Catalog](https://qooxdoo.org/package-cache/)

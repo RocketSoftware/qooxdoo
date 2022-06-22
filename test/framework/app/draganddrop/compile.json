@@ -1,0 +1,25 @@
+{
+  "targets": [
+    {
+      "type": "source",
+      "outputPath": "compiled/source"
+    },
+    {
+      "type": "build",
+      "outputPath": "compiled/build",
+      "addCreatedAt": true
+    }
+  ],
+  "defaultTarget": "source",
+  "locales": [ "en" ],
+
+  "applications": [
+    {
+      "class": "draganddrop.DragAndDropApplication",
+      "theme": "qx.theme.Simple",
+      "name": "dragndrop"
+    }
+  ],
+
+  "$schema": "https://qooxdoo.org/schema/compile-1-0-0.json"
+}

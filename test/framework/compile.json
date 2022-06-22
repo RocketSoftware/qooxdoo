@@ -1,0 +1,61 @@
+{
+  "targets": [
+    {
+      "type": "source",
+      "outputPath": "compiled/source",
+      "babelOptions": {
+        "targets": "edge >=18, chrome >= 73, firefox >= 66"
+      }
+    },
+    {
+      "type": "build",
+      "outputPath": "compiled/build"
+    }
+  ],
+  "defaultTarget": "source",
+  "locales": [
+    "cs",
+    "de",
+    "en",
+    "es",
+    "fr",
+    "it",
+    "nb",
+    "nl",
+    "pl",
+    "pt",
+    "ro",
+    "ru",
+    "sl",
+    "sv"
+  ],
+  "writeAllTranslations": true,
+  "libraries": [
+    "../.."
+  ],
+  "applications": [
+    {
+      "class": "qxl.testtapper.Application",
+      "name": "testtapper",
+      "theme": "qx.theme.Simple",
+      "title": "Qooxdoo TestTAPper",
+      "environment": {
+        "qx.icontheme": "Tango",
+        "qxl.testtapper.testNameSpace": "qx.test",
+        "qxl.testtapper.browsers": ["chromium"]
+      },
+      "include": [
+        "qx.test.*"
+      ],
+      "exclude": [
+        "qx.tool.*",
+        "qx.test.tool.*",
+        "qx.test.compiler.*"
+      ]
+    }
+  ],
+  "sass": {
+    "compiler": "legacy"
+  },
+  "$schema": "https://qooxdoo.org/schema/compile-1-0-0.json"
+}

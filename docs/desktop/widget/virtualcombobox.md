@@ -1,20 +1,20 @@
-Virtual ComboBox
-================
+# Virtual ComboBox
 
-The virtual ComboBox acts like the regular combobox, but is based on the framework's virtual infrastructure.
+The virtual ComboBox acts like the regular combobox, but is based on the
+framework's virtual infrastructure.
 
-Preview Image
--------------
+## Preview Image
 
 ![virtualcombobox.png](virtualcombobox.png)
 
-Features
---------
+## Features
 
--   Pointer and keyboard support.
--   Items with plain text and/or icons
--   Ellipsis: If the label does not fit into the widget's bounds an ellipsis (”...”) is rendered at the end of the label.
--   Supports filtering, sorting, grouping, data binding and custom rendering like the virtuallist.
+- Pointer and keyboard support.
+- Items with plain text and/or icons
+- Ellipsis: If the label does not fit into the widget's bounds an ellipsis
+  (”...”) is rendered at the end of the label.
+- Supports filtering, sorting, grouping, data binding and custom rendering like
+  the virtuallist.
 
 **Pointer and keyboard behavior:**
 
@@ -141,56 +141,60 @@ Features
 </tbody>
 </table>
 
-Description
------------
+## Description
 
-The `qx.ui.form.VirtualComboBox` is based on the virtual infrastructure. The virtual SelectBox has both a textfield and a virtuallist drop-down. The drop-down can be used to predefine values which the user can select.
+The `qx.ui.form.VirtualComboBox` is based on the virtual infrastructure. The
+virtual SelectBox has both a textfield and a virtuallist drop-down. The
+drop-down can be used to predefine values which the user can select.
 
-Using the virtual infrastructure has considerable advantages when there is a huge amount of model items to render: Widgets are created only for visible items and reused. This saves both creation time and memory.
+Using the virtual infrastructure has considerable advantages when there is a
+huge amount of model items to render: Widgets are created only for visible items
+and reused. This saves both creation time and memory.
 
-The virtual ComboBox uses the same [qx.ui.list.core.IListDelegate](apps://apiviewer/#qx.ui.list.core.IListDelegate) interface as the virtuallist to configure the ComboBox's behavior (item and group renderer configuration, filtering, sorting, grouping, etc.).
+The virtual ComboBox uses the same
+[qx.ui.list.core.IListDelegate](apps://apiviewer/#qx.ui.list.core.IListDelegate)
+interface as the virtuallist to configure the ComboBox's behavior (item and
+group renderer configuration, filtering, sorting, grouping, etc.).
 
-> **note**
+> :memo: Only widget based rendering for list and group items is supported.
 
-> Only widget based rendering for list and group items is supported.
+## Code Example
 
-Code Example
-------------
+Here's an example. We create a simple ComboBox example with 2500 items, sorting
+the items (ascending) and log each value change.
 
-Here's an example. We create a simple ComboBox example with 2500 items, sorting the items (ascending) and log each value change.
+```
+//create the model data
+var rawData = [];
+for (var i = 0; i < 2500; i++) {
+  rawData[i] = "Item No " + i;
+}
+var model = qx.data.marshal.Json.createModel(rawData);
 
-    //create the model data
-    var rawData = [];
-    for (var i = 0; i < 2500; i++) {
-      rawData[i] = "Item No " + i;
-    }
-    var model = qx.data.marshal.Json.createModel(rawData);
+//create the SelectBox
+var comboBox = new qx.ui.form.VirtualComboBox(model);
 
-    //create the SelectBox
-    var comboBox = new qx.ui.form.VirtualComboBox(model);
+//configure the ComboBox's behavior
+var delegate = {
+  sorter : function(a, b) {
+    return a > b ? 1 : a < b ? -1 : 0;
+  }
+};
+comboBox.setDelegate(delegate);
 
-    //configure the ComboBox's behavior
-    var delegate = {
-      sorter : function(a, b) {
-        return a > b ? 1 : a < b ? -1 : 0;
-      }
-    };
-    comboBox.setDelegate(delegate);
+//log value changes
+comboBox.addListener("changeValue", function(e) {
+  this.debug("Value: " + e.getData());
+}, this);
+```
 
-    //log value changes
-    comboBox.addListener("changeValue", function(e) {
-      this.debug("Value: " + e.getData());
-    }, this);
-
-Demos
------
+## Demos
 
 Here are some links that demonstrate the usage of the widget:
 
--   [ComboBox demo](apps://demobrowser/#virtual~ComboBox.html)
+- [ComboBox demo](apps://demobrowser/#virtual~ComboBox.html)
 
-API
----
+## API
 
 Here is a link to the API of the widget:
 [qx.ui.form.VirtualComboBox](apps://apiviewer/#qx.ui.form.VirtualComboBox)

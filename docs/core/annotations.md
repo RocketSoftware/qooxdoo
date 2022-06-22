@@ -1,5 +1,4 @@
-Annotations
-===========
+# Annotations
 
 Annotations are the ability to add meta data to classes so that the meta data
 can be accessed at runtime; the meta data can be added to individual members,
@@ -24,8 +23,7 @@ which does the work from the class, but this can only work because the class is
 able to “annotate” itself with guidelines on how to that separate code should
 behave.
 
-Example 1
----------
+## Example 1
 
 Suppose you create a form that allows the user to edit some object, and that
 object has lots of properties that can be edited; some of those properties are
@@ -55,20 +53,17 @@ qx.Class.define("myapp.model.Customer", {
   properties: {
     address: {
       check: "String"
-
     },
     zipCode: {
       check: "String",
-      "@": [new myapp.forms.annotations.ZipCode().set({allowNonUsa: true})
-      ]
+      "@": [new myapp.forms.annotations.ZipCode().set({ allowNonUsa: true })]
     }
-
   }
-
 });
 
 qx.Class.define("myapp.forms.annotations.ValidationAnnotation", {
-  extend: qx.core.Object, type: "abstract",
+  extend: qx.core.Object,
+  type: "abstract",
 
   members: {
     /*
@@ -78,21 +73,17 @@ qx.Class.define("myapp.forms.annotations.ValidationAnnotation", {
     
     \* @return {Boolean} \*/
 
-    isValid: function (value) {
-    }
-
+    isValid: function (value) {}
   }
-
 });
 qx.Class.define("myapp.forms.annotations.ZipCode", {
   extend: myapp.forms.annotations.ValidationAnnotation,
 
   properties: {
     allowNonUsa: {
-      init: false, check: "Boolean"
-
+      init: false,
+      check: "Boolean"
     }
-
   },
 
   members: {
@@ -102,30 +93,26 @@ qx.Class.define("myapp.forms.annotations.ZipCode", {
       var ok = true;
       /* ... zip code validation ... */
       return ok;
-
     }
-
   }
-
 });
-
-``` 
-
+```
 
 Your form validation logic, when asked to bind to a given property could get a
 list of annotations which derive from
 myapp.forms.annotations.ValidationAnnotation, and use that to implement it's
 validation logic, for example:
 
-    var propAnnos = qx.Annotation.getProperty(obj.constructor, propName);
-    propAnnos.forEach(function(propAnno) {
-        if (propAnno instanceof myapp.forms.annotations.ValidationAnnotation) {
-            /* ... Setup the validation rules (eg for a ZipCode) ... */
-        }
-    });
+```javascript
+var propAnnos = qx.Annotation.getProperty(obj.constructor, propName);
+propAnnos.forEach(function (propAnno) {
+  if (propAnno instanceof myapp.forms.annotations.ValidationAnnotation) {
+    /* ... Setup the validation rules (eg for a ZipCode) ... */
+  }
+});
+```
 
-Example 2
----------
+## Example 2
 
 Lets refine our example above and say that the Customer objects are part of an
 object model which needs to be replicated on to the server; most of the
@@ -138,7 +125,7 @@ You do not want the UI code to handle copying the data to the server and back
 because it happens in so many places, it would be much better is Customer just
 "knew" about the properties.
 
-To automate this, you could start by just synchronising *all* properties in
+To automate this, you could start by just synchronising _all_ properties in
 Customer to the server, but the likelyhood is that there are properties which
 only exist in the UI, and anyway the naming conventions might mean that property
 names on the server are always 100% the same as that on the server.
@@ -148,51 +135,53 @@ describe which need to be transferred, what their name is at the server, whether
 they are one way, etc. Once piece of generic code can then handle synchronising
 for Customer or any server object that works in this way.
 
-    qx.Class.define("myapp.model.Customer", {
-        extend: qx.core.Object,
+```javascript
+qx.Class.define("myapp.model.Customer", {
+    extend: qx.core.Object,
 
-        // Annotate the class with the REST endpoint required by serverio library, used to save the
-        //  modified Customer objects
-        "@": [ new serverio.annotations.RestClass().set({ restEndPoint: "/api/customer" }) ],
+    // Annotate the class with the REST endpoint required by serverio library, used to save the
+    //  modified Customer objects
+    "@": [ new serverio.annotations.RestClass().set({ restEndPoint: "/api/customer" }) ],
 
-        properties: {
-            serverId: {
-                check: "String",
-                "@": [ serverio.annotations.Property.getIdentifierInstance() ]
-            },
-            name: {
-                check: "String",
-                "@": [ serverio.annotations.Property.getDefaultInstance() ]
-            },
-            address: {
-                check: "String",
-                "@": [ serverio.annotations.Property.getDefaultInstance() ]
-            },
-            zipCode: {
-                check: "String",
-                "@": [  new myapp.forms.annotations.ZipCode().set({ allowNonUsa: true }),
-                        serverio.annotations.Property.getDefaultInstance() ]
-            },
-            creditLimit: {
-                check :"Number",
-                "@": [ new myapp.forms.annotations.PositiveCurrency(),
-                        new serverio.annotations.Property().set({ serverName: "maxCreditLimit" ]
-            },
-            dirty: {
-                init: false,
-                check: "Boolean"
-            }
+    properties: {
+        serverId: {
+            check: "String",
+            "@": [ serverio.annotations.Property.getIdentifierInstance() ]
         },
+        name: {
+            check: "String",
+            "@": [ serverio.annotations.Property.getDefaultInstance() ]
+        },
+        address: {
+            check: "String",
+            "@": [ serverio.annotations.Property.getDefaultInstance() ]
+        },
+        zipCode: {
+            check: "String",
+            "@": [  new myapp.forms.annotations.ZipCode().set({ allowNonUsa: true }),
+                    serverio.annotations.Property.getDefaultInstance() ]
+        },
+        creditLimit: {
+            check :"Number",
+            "@": [ new myapp.forms.annotations.PositiveCurrency(),
+                    new serverio.annotations.Property().set({ serverName: "maxCreditLimit" ]
+        },
+        dirty: {
+            init: false,
+            check: "Boolean"
+        }
+    },
 
-        members: {
-            save: function() {
-                if (this.isDirty()) {
-                    serverio.Database.save(this);
-                    this.setDirty(false);
-                }
+    members: {
+        save: function() {
+            if (this.isDirty()) {
+                serverio.Database.save(this);
+                this.setDirty(false);
             }
         }
-    });
+    }
+});
+```
 
 In the above example, the class is given an annotation which says what the REST
 endpoint is - there is presumably a server component which provides CRUD
@@ -214,20 +203,23 @@ for form validation in the UI and another for serialising to the server; the
 class is not required to inherit from a given base class, or even implement
 interfaces.
 
-Declaration
------------
+## Declaration
 
 Annotations are declared next to the method being annotated but with a leading
 "@" symbol, or in the case of properties and classes just an "@" within the
 definition. For example:
 
-    qx.Class.define("qx.test.Cat", {
-      "@": [ "class-annotation" ],
-      extend: qx.core.Object,
+```javascript
+qx.Class.define("qx.test.Cat", {
+  "@": ["class-annotation"],
+  extend: qx.core.Object,
 
-      "@construct": [ "constructor-annotation" ],
-      construct : function() { /* ... */ }
-    });
+  "@construct": ["constructor-annotation"],
+  construct: function () {
+    /* ... */
+  }
+});
+```
 
 In the above examples the two annotations are just strings, which is functional
 but you have to be careful to avoid name conflicts - if you use strings, make
@@ -236,56 +228,61 @@ sure that it is prefixed with your library namespace.
 Perhaps a better way to annotate would be with an instance of a class that has
 well defined properties; for example:
 
-    qx.Class.define("qx.test.Pet", {
-      extend: qx.core.Object,
+```javascript
+qx.Class.define("qx.test.Pet", {
+  extend: qx.core.Object,
 
-      properties: {
-        hasFur: {
-            "@": [ new qx.serverio.SerialiseColumn("HAS_FUR") ],
-            init: true,
-            check: "Boolean"
-        },
+  properties: {
+    hasFur: {
+        "@": [ new qx.serverio.SerialiseColumn("HAS_FUR") ],
+        init: true,
+        check: "Boolean"
+    },
 
-        color: [
-            "@": [ new qx.serverio.SerialiseColumn("COLOR") ],
-            nullable: false,
-            check: [ "black", "brown" ]
-        ]
-      }
-    });
+    color: [
+        "@": [ new qx.serverio.SerialiseColumn("COLOR") ],
+        nullable: false,
+        check: [ "black", "brown" ]
+    ]
+  }
+});
 
-    qx.Class.define("qx.test.Cat", {
-      "@": [ new qx.serverio.SerialiseTable(true, "CAT") ],
-      extend: qx.test.Pet,
+qx.Class.define("qx.test.Cat", {
+  "@": [ new qx.serverio.SerialiseTable(true, "CAT") ],
+  extend: qx.test.Pet,
 
-      properties: {
-        hasFur: {
-            "@": [ "qx.test.otherAnnotation" ],
-            refine: true
-        }
-      }
-    });
+  properties: {
+    hasFur: {
+        "@": [ "qx.test.otherAnnotation" ],
+        refine: true
+    }
+  }
+});
+```
 
-Reflection
-----------
+## Reflection
 
 Annotations are only useful if you can inspect them, and the `qx.Annotation`
 class provides methods for accessing them; for example:
 
-    var pet = this.getPet();
-    var annos = qx.Annotation.getProperty(pet.constructor, "color");
-    qx.core.Assert.assertEquals(1, annos.length);
-    qx.core.Assert.assertEquals("qx.serverio.SerialiseColumn", annos[0].classname);
+```javascript
+var pet = this.getPet();
+var annos = qx.Annotation.getProperty(pet.constructor, "color");
+qx.core.Assert.assertEquals(1, annos.length);
+qx.core.Assert.assertEquals("qx.serverio.SerialiseColumn", annos[0].classname);
+```
 
 Note that you can use annotations in super classes and add further annotations
 in derived classes; in the example above, the "hasFur" property has two
 annotations in the qx.test.Cat class, but only one for qx.test.Pet.
 
-    var pet = this.getPet();
+```javascript
+var pet = this.getPet();
 
-    // Only Cat's have the second annotation
-    qx.core.Assert.assertTrue(pet instanceof qx.test.Cat);
-    var annos = qx.Annotation.getProperty(pet.constructor, "hasFur");
-    qx.core.Assert.assertEquals(2, annos.length);
-    qx.core.Assert.assertEquals("qx.test.otherAnnotation", annos[0]);
-    qx.core.Assert.assertEquals("qx.serverio.SerialiseColumn", annos[1].classname);
+// Only Cat's have the second annotation
+qx.core.Assert.assertTrue(pet instanceof qx.test.Cat);
+var annos = qx.Annotation.getProperty(pet.constructor, "hasFur");
+qx.core.Assert.assertEquals(2, annos.length);
+qx.core.Assert.assertEquals("qx.test.otherAnnotation", annos[0]);
+qx.core.Assert.assertEquals("qx.serverio.SerialiseColumn", annos[1].classname);
+```

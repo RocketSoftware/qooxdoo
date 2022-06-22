@@ -1,0 +1,28 @@
+{
+  "targets": [
+    {
+      "type": "source",
+      "outputPath": "compiled-nopromise/source"
+    },
+    {
+      "type": "build",
+      "outputPath": "compiled-nopromise/build",
+      "addCreatedAt": true
+    }
+  ],
+  "defaultTarget": "source",
+  "locales": [ "en" ],
+  "environment": {
+    "qx.promise": false
+  },
+
+  "applications": [
+    {
+      "class": "draganddrop.DragAndDropNoPromiseApplication",
+      "theme": "qx.theme.Simple",
+      "name": "dragndrop"
+    }
+  ],
+
+  "$schema": "https://qooxdoo.org/schema/compile-1-0-0.json"
+}

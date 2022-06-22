@@ -1,54 +1,52 @@
-Mixins
-======
+# Mixins
 
-Mixins are collections of code and variables, which can be merged into other classes. They are similar to classes but can not be instantiated. Unlike interfaces they do contain implementation code. Typically they are made up of only a few members that allow for a generic implementation of some very specific functionality.
+Mixins are collections of code and variables, which can be merged into other
+classes. They are similar to classes but can not be instantiated. Unlike
+interfaces they do contain implementation code. Typically they are made up of
+only a few members that allow for a generic implementation of some very specific
+functionality.
 
-Mixins are used to share functionality without using inheritance and to extend/patch the functionality of existing classes.
+Mixins are used to share functionality without using inheritance and to
+extend/patch the functionality of existing classes.
 
-Definition
-----------
+## Definition
 
 Example:
 
 ```javascript
-qx.Mixin.define("name",
-{
+qx.Mixin.define("name", {
   include: [SuperMixins],
 
   properties: {
-    "tabIndex": {check: "Number", init: -1}
+    tabIndex: { check: "Number", init: -1 }
   },
 
-  members:
-  {
+  members: {
     prop1: "foo",
-    meth1: function() {},
-    meth2: function() {}
+    meth1: function () {},
+    meth2: function () {}
   }
 });
 ```
 
-Usage
------
+## Usage
 
-Here a short example to see, how to use mixins (`MMixinA`, `MMixinB`) with a class (`ClassC`).
+Here a short example to see, how to use mixins (`MMixinA`, `MMixinB`) with a
+class (`ClassC`).
 
 The first mixin:
 
 ```javascript
-qx.Mixin.define("demo.MMixinA",
-{
+qx.Mixin.define("demo.MMixinA", {
   properties: {
-    "propertyA":
-    {
+    propertyA: {
       check: "String",
       init: "Hello, I'm property A!\n"
     }
   },
 
-  members:
-  {
-    methodA: function() {
+  members: {
+    methodA: function () {
       return "Hello, I'm method A!\n";
     }
   }
@@ -58,19 +56,16 @@ qx.Mixin.define("demo.MMixinA",
 The second mixin:
 
 ```javascript
-qx.Mixin.define("demo.MMixinB",
-{
+qx.Mixin.define("demo.MMixinB", {
   properties: {
-    "propertyB":
-    {
+    propertyB: {
       check: "String",
       init: "Hello, I'm property B!\n"
     }
   },
 
-  members:
-  {
-    methodB: function() {
+  members: {
+    methodB: function () {
       return "Hello, I'm method B!\n";
     }
   }
@@ -80,18 +75,20 @@ qx.Mixin.define("demo.MMixinB",
 The usage in the class:
 
 ```javascript
-qx.Class.define("demo.ClassC",
-{
-  extend : qx.core.Object,
+qx.Class.define("demo.ClassC", {
+  extend: qx.core.Object,
 
-  include : [demo1.MMixinA, demo1.MMixinB],
+  include: [demo1.MMixinA, demo1.MMixinB],
 
-  members :
-  {
-    methodC : function() {
-      return this.getPropertyA() + this.methodA()
-        + this.getPropertyB() + this.methodB()
-        + "Nice to meet you. Thanks for your help!";
+  members: {
+    methodC: function () {
+      return (
+        this.getPropertyA() +
+        this.methodA() +
+        this.getPropertyB() +
+        this.methodB() +
+        "Nice to meet you. Thanks for your help!"
+      );
     }
   }
 });
@@ -100,8 +97,8 @@ qx.Class.define("demo.ClassC",
 The result is when calling the method `methodC()` of `ClassC`:
 
 ```javascript
-var classC = new demo.ClassC;
-var result = classC .methodC();
+var classC = new demo.ClassC();
+var result = classC.methodC();
 /*
  * Result:
  * Hello, I'm property A!

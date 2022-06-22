@@ -1,0 +1,7 @@
+# .gitignore template for skeleton-based apps
+/compiled
+/compiled-nopromise
+
+# node-related files
+/node_modules
+npm-debug.log

@@ -1,29 +1,25 @@
-Atom
-====
+# Atom
 
-The Atom groups an image with a label with support for different alignments. It is a building block for many other widgets like Buttons or Tooltips.
+The Atom groups an image with a label with support for different alignments. It
+is a building block for many other widgets like Buttons or Tooltips.
 
-Preview Image
--------------
+## Preview Image
 
 ![widget/atom.jpg](atom.jpg)
 
-Features
---------
+## Features
 
--   Configurable spacing between icon and label
--   Toggle display of "image" "label" or "both"
--   Configurable icon position
+- Configurable spacing between icon and label
+- Toggle display of "image" "label" or "both"
+- Configurable icon position
 
-Demos
------
+## Demos
 
 Here are some links that demonstrate the usage of the widget:
 
--   [A simple Atom demo](apps://demobrowser/#widget~Atom.html)
+- [A simple Atom demo](apps://demobrowser/#widget~Atom.html)
 
-API
----
+## API
 
 Here is a link to the API of the Widget:
 [qx.ui.basic.Atom](apps://apiviewer/#qx.ui.basic.Atom)
