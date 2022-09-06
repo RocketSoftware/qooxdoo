@@ -2681,8 +2681,6 @@ qx.Class.define("qx.ui.core.Widget",
         }
 
         // Check property availability of new data
-        if (qx.core.Environment.get("qx.debug"))
-        {
           for (var prop in newData)
           {
             if (!this[styler[prop]]) {
@@ -2691,7 +2689,6 @@ qx.Class.define("qx.ui.core.Widget",
                 '" while styling ' + selector);
             }
           }
-        }
 
         // Apply new data
         for (var prop in newData) {
