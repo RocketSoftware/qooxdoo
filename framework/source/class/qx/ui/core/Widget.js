@@ -2681,7 +2681,7 @@ qx.Class.define("qx.ui.core.Widget",
         }
 
         // Check property availability of new data
-        if (qx.core.Environment.get("qx.debug"))
+        if (qx.core.Environment.get("qx.debug") || qx.core.Environment.get("qx.failOnIncorrectAppearance"))
         {
           for (var prop in newData)
           {
