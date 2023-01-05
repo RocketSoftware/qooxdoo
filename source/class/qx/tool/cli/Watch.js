@@ -13,6 +13,7 @@
 
    Authors:
      * John Spackman (john.spackman@zenesis.com, @johnspackman)
+     * Henner Kollmann (Henner.Kollmann@gmx.de, @hkollmann)
 
 ************************************************************************ */
 
@@ -154,6 +155,9 @@ qx.Class.define("qx.tool.cli.Watch", {
         dir = path.join(lib.getRootDir(), lib.getThemePath());
         dirs.push(dir);
       });
+      if (analyser.getProxySourcePath()) {
+        dirs.push(path.resolve(analyser.getProxySourcePath()));
+      }
       var applications = (this.__applications = []);
       this.__maker.getApplications().forEach(function (application) {
         var data = {
@@ -166,6 +170,13 @@ qx.Class.define("qx.tool.cli.Watch", {
         let dir = application.getBootPath();
         if (dir && !dirs.includes(dir)) {
           dirs.push(dir);
+        }
+        let localModules = application.getLocalModules();
+        for (let requireName in localModules) {
+          let dir = localModules[requireName];
+          if (dir && !dirs.includes(dir)) {
+            dirs.push(dir);
+          }
         }
       });
       if (this.isDebug()) {
@@ -211,30 +222,31 @@ qx.Class.define("qx.tool.cli.Watch", {
             `DEBUG: confirmed=${JSON.stringify(confirmed, 2)}`
           );
         }
-
-        var watcher = (this._watcher = chokidar.watch(confirmed, {
-          //ignored: /(^|[\/\\])\../
-        }));
-        watcher.on("change", filename =>
-          this.__onFileChange("change", filename)
-        );
-
-        watcher.on("add", filename => this.__onFileChange("add", filename));
-        watcher.on("unlink", filename =>
-          this.__onFileChange("unlink", filename)
-        );
-
-        watcher.on("ready", () => {
-          this.__watcherReady = true;
-          this.__make();
-        });
-        watcher.on("error", err => {
-          qx.tool.compiler.Console.print(
-            err.code == "ENOSPC"
-              ? "qx.tool.cli.watch.enospcError"
-              : "qx.tool.cli.watch.watchError",
-            err
+        this.__make().then(() => {
+          var watcher = (this._watcher = chokidar.watch(confirmed, {
+            //ignored: /(^|[\/\\])\../
+          }));
+          watcher.on("change", filename =>
+            this.__onFileChange("change", filename)
           );
+
+          watcher.on("add", filename => this.__onFileChange("add", filename));
+          watcher.on("unlink", filename =>
+            this.__onFileChange("unlink", filename)
+          );
+
+          watcher.on("ready", () => {
+            qx.tool.compiler.Console.log(`Start watching ...`);
+            this.__watcherReady = true;
+          });
+          watcher.on("error", err => {
+            qx.tool.compiler.Console.print(
+              err.code == "ENOSPC"
+                ? "qx.tool.cli.watch.enospcError"
+                : "qx.tool.cli.watch.watchError",
+              err
+            );
+          });
         });
       });
     },
@@ -288,15 +300,22 @@ qx.Class.define("qx.tool.cli.Watch", {
               data.dependsOn = {};
               var deps = data.application.getDependencies();
               deps.forEach(function (classname) {
-                var info = db.classInfo[classname];
-                var lib = analyser.findLibrary(info.libraryName);
-                var parts = [lib.getRootDir(), lib.getSourcePath()].concat(
+                let info = db.classInfo[classname];
+                let lib = analyser.findLibrary(info.libraryName);
+                let parts = [lib.getRootDir(), lib.getSourcePath()].concat(
                   classname.split(".")
                 );
 
-                var filename = path.resolve.apply(path, parts) + ".js";
+                let filename = path.resolve.apply(path, parts) + ".js";
                 data.dependsOn[filename] = true;
               });
+
+              let localModules = data.application.getLocalModules();
+              for (let requireName in localModules) {
+                let filename = path.resolve(localModules[requireName]);
+                data.dependsOn[filename] = true;
+              }
+
               var filename = path.resolve(data.application.getLoaderTemplate());
               promises.push(
                 qx.tool.utils.files.Utils.correctCase(filename).then(
