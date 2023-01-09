@@ -1,11 +1,7 @@
 [![NPM Version][npm-image]][npm-url]
-[![Test Coverage][coveralls-image]][coveralls-url]
-[![Travis Build][travis-image]][travis-url]
-[![SauceLab Build][saucelab-image]][saucelab-url]
 [![Gitter][gitter-image]][gitter-url]
 
-About
-=====
+# Qooxdoo JavaScript Framework 
 
 qooxdoo is a universal JavaScript framework that enables you to create 
 applications for a wide range of platforms. With its object-oriented 
@@ -22,31 +18,32 @@ community.
 
 For more information please see http://qooxdoo.org .
 
-License
-=======
+## License
 
-qooxdoo may be used under the terms of the MIT License.
+qooxdoo may be used under the terms of the [MIT License](LICENSE).
 
-For more information please see http://qooxdoo.org/license .
-
-
-Quick start
-===========
+## Quick start
 
 It is easy to get started with qooxdoo. For detailed information please
-see [github.com/qooxdoo/qooxdoo/docs](https://github.com/qooxdoo/qooxdoo/tree/master/docs).
+see [our Get Started Guide](docs/README.md).
 
+## Documentation
+   - released version: https://qooxdoo.org/documentation/v7.0/#/
 
-API Reference
-==============
+## API Ref
+   - released version: https://qooxdoo.org/qxl.apiviewer/v7.0/#/
 
-You might also want to open the API viewer in a separate browser window,
-which offers the qooxdoo framework API in a convenient way (See the
-top-level 'index.html' file next to this readme).
+## Development
 
+If you develop *with* qooxdoo, you would normally use a stable
+[NPM release](https://www.npmjs.com/package/@qooxdoo/framework), which,
+since v6.0.0, contains the compiler and the CLI called with with 
+`npx qx <command>`. 
 
-Contributing
-=============
+In contrast, if you want to be hacking qooxdoo itself, please 
+refer to our [documentation](docs/development/contribute.md).
+ 
+## Contributing
 
 There are many ways you can contribute to qooxdoo, ranging from providing
 feedback, making translations, providing a custom library to full-blown patches
@@ -59,30 +56,23 @@ we use the standard [Issue Tracker](https://github.com/qooxdoo/qooxdoo/issues) a
 [Pull Requests feature](https://github.com/qooxdoo/qooxdoo/pulls).
 
 
-Community
-=========
+## Community
 
 Online chat is available via Gitter at https://gitter.im/qooxdoo/qooxdoo (or using
 one of the Gitter desktop or mobile clients) - the core team hang out there, as do
 other developers who use Qooxdoo.
 
-Learn more
-===========
+## Learn more
 
-* About qooxdoo
-  http://www.qooxdoo.org/
+* Documentation
+  - http://qooxdoo.org/documentation (latest stable)
+  - http://qooxdoo.org/qooxdoo (current master)
 
 * Online Demos
-  http://www.qooxdoo.org/demos.html
-
-* Release Notes
-  https://github.com/qooxdoo/qooxdoo/releases
-
-* User Manual
-  [github.com/qooxdoo/qooxdoo/docs](https://github.com/qooxdoo/qooxdoo/tree/master/docs)
+  http://qooxdoo.org/demos
 
 * API Documentation
-  http://www.qooxdoo.org/devel/api/
+  http://qooxdoo.org/api
 
 
 [npm-image]: https://badge.fury.io/js/%40qooxdoo%2Fframework.svg
@@ -91,7 +81,5 @@ Learn more
 [travis-url]: https://travis-ci.org/qooxdoo/qooxdoo
 [coveralls-image]: https://coveralls.io/repos/github/qooxdoo/qooxdoo/badge.svg?branch=master 
 [coveralls-url]: https://coveralls.io/github/qooxdoo/qooxdoo?branch=master
-[saucelab-image]: https://saucelabs.com/buildstatus/qx-core
-[saucelab-url]: https://saucelabs.com/open_sauce/user/qx-core
 [gitter-image]: https://badges.gitter.im/qooxdoo/qooxdoo.svg
 [gitter-url]: https://gitter.im/qooxdoo/qooxdoo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge

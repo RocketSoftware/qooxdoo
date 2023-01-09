@@ -1,35 +1,31 @@
-Slider
-======
+# Slider
 
 The Slider widget is the classic widget for controlling a bounded value.
 
-Preview Image
--------------
+## Preview Image
 
 ![Slider](slider.png)
 
-Features
---------
+## Features
 
--   Pointer support.
--   Horizontal and vertical orientation.
--   Configurable steps.
+- Pointer support.
+- Horizontal and vertical orientation.
+- Configurable steps.
 
-Description
------------
+## Description
 
-The Slider widget is the classic widget for controlling a bounded value. It lets the user move a slider handle along a horizontal or vertical groove and translates the handle's position into an integer value within the defined range.
+The Slider widget is the classic widget for controlling a bounded value. It lets
+the user move a slider handle along a horizontal or vertical groove and
+translates the handle's position into an integer value within the defined range.
 
-Demos
------
+## Demos
 
 Here are some links that demonstrate the usage of the widget:
 
--   [Slider demo](apps://demobrowser/#widget~Slider.html)
--   [Form demo](apps://demobrowser/#showcase~Form.html)
+- [Slider demo](apps://demobrowser/#widget~Slider.html)
+- [Form demo](apps://demobrowser/#showcase~Form.html)
 
-API
----
+## API
 
 Here is a link to the API of the Widget:
 [qx.ui.form.Slider](apps://apiviewer/#qx.ui.form.Slider)

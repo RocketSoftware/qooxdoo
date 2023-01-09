@@ -1,32 +1,27 @@
-PopUp
-=====
+# PopUp
 
 Popups are widgets, which can be placed on top of the application.
 
-Preview Image
--------------
+## Preview Image
 
 ![popup.png](popup.png)
 
-Features
---------
+## Features
 
--   Auto hide property
+- Auto hide property
 
-Description
------------
+## Description
 
-Popups are automatically added to the application root and are used to display menus, the lists of combo or select boxes, tooltips, etc.
+Popups are automatically added to the application root and are used to display
+menus, the lists of combo or select boxes, tooltips, etc.
 
-Demos
------
+## Demos
 
 Here are some links that demonstrate the usage of the widget:
 
--   [Simple example for the PopUp widget](apps://demobrowser/#widget~Popup.html)
+- [Simple example for the PopUp widget](apps://demobrowser/#widget~Popup.html)
 
-API
----
+## API
 
 Here is a link to the API of the Widget:
 [qx.ui.popup](apps://apiviewer/#qx.ui.popup)

@@ -6,7 +6,7 @@
 - multi language support
 - powerful theming
 
-[About qooxdoo](about.md#about-qooxdoo)
+[About Qooxdoo](about.md#about-Qooxdoo)
 [Get Started](README.md#getting-started)
 [API Viewer](/apps/apiviewer)
 [Packagebrowser](http://www.qooxdoo.org/qxl.packagebrowser)

@@ -2,13 +2,13 @@
 
 A short summary of the elements used in syntax diagrams.
 
-| Syntax symbol     | Description                                               |
-| ----------------- | --------------------------------------------------------- |
-| **:=**            | production rule (*"non-terminal can be expanded to ..."*) |
-| **{** ... **}**   | 0..N occurrences (*"\*"*)                                 |
-| **\[** ... **\]** | 0..1 occurrences (*"?"*)                                  |
-| **(** ... **)**   | grouping                                                  |
-| ... **|** ...     | alternative                                               |
-| **'** ... **'**   | literal                                                   |
-| **\<** ... **\>** | placeholder for literal                                   |
-| **?** ... **?**   | comment                                                   |
+| Syntax symbol    | Description                                               |             |
+| ---------------- | --------------------------------------------------------- | ----------- |
+| **:=**           | production rule (_"non-terminal can be expanded to ..."_) |             |
+| **{** ... **}**  | 0..N occurrences (_"\*"_)                                 |             |
+| **\[** ... **]** | 0..1 occurrences (_"?"_)                                  |             |
+| **(** ... **)**  | grouping                                                  |             |
+| ... \*\*         | \*\* ...                                                  | alternative |
+| **'** ... **'**  | literal                                                   |             |
+| **(** ... **)**  | placeholder for literal                                   |             |
+| **?** ... **?**  | comment                                                   |             |

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://qooxdoo.org/schema/Manifest-2-0-0.json",
+  "info": {
+    "name": "Qooxdoo framework tests",
+    "license": "MIT",
+    "version": "7.0.0",
+    "authors": []
+  },
+  "provides": {
+    "namespace": "",
+    "class": ""
+  },
+  "requires": {
+    "@qooxdoo/framework": "^7.0.0"
+  }
+}
