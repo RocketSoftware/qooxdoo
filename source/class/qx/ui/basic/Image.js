@@ -974,7 +974,7 @@ qx.Class.define("qx.ui.basic.Image", {
             var combinedStyles = {
               backgroundImage: attr.style.backgroundImage,
               backgroundPosition: attr.style.backgroundPosition || "0 0",
-              backgroundRepeat: (attr.style.backgroundRepeat || this.getRepeat()) //LWEB-183-enable-image-to-be-set-through-theme 
+              backgroundRepeat: (attr.style.backgroundRepeat || this.getRepeat()), //LWEB-183-enable-image-to-be-set-through-theme 
               position: "absolute"
             };
 
