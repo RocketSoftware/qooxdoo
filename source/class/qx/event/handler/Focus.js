@@ -1052,21 +1052,18 @@ qx.Class.define("qx.event.handler.Focus", {
             }
           },
 
-          default(domEvent) {
-          // LS-16050 don't reset focus when it goes from child text field control
-          // todo check if it is still needed
-            var target = qx.bom.Event.getTarget(domEvent);
+          default(domEvent) { // LS-16050 don't reset focus when it goes from child text field control
+                              // todo check if it is still needed
+            var target = qx.bom.Event.getTarget(domEvent),
               relatedTarget = qx.bom.Event.getRelatedTarget(domEvent),
               widget = qx.ui.core.Widget.getWidgetByElement(target),
               textField = widget && widget.getChildControl && widget.getChildControl("textfield", true);
-          if (textField && (relatedTarget === textField.getContentElement().getDomElement())) {
-            return;
-          }
-
+            if (textField && (relatedTarget === textField.getContentElement().getDomElement())) {
+              return;
+            }
             if (target === this.getFocus()) {
               this.resetFocus();
             }
-
             if (target === this.getActive()) {
               this.resetActive();
             }
