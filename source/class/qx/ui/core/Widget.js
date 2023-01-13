@@ -1491,7 +1491,6 @@ qx.Class.define("qx.ui.core.Widget", {
       var el = this._createContentElement();
       el.connectObject(this);
 
-      el.setAttribute("$$widget", this.toHashCode());
       //https://www.rocketrack.com/browse/LS-12796 - [#LS-12796] Web UI: Android tabled zoom and pan does not work right in DIS environment
       //https://jira.rocketsoftware.com/browse/LS-21474 - [#LS-21474] LegaSuite Web does not pinch/zoom well when using iPhone in landscape mode
       var touchAction = qx.core.Environment.get("os.name") === "ios" ? "manipulation" : "auto";
