@@ -1129,15 +1129,18 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
       this.__lastPointerPageX = pageX;
       this.__lastPointerPageY = pageY;
 
-      var useResizeCursor = false;
-      var resizeCol = this._getResizeColumnForPageX(pageX);
-      if (resizeCol != -1) {
-        // The pointer is over a resize region -> Show the right cursor
-        useResizeCursor = true;
-      }
-      var cursor = useResizeCursor ? "col-resize" : null;
-      this.getApplicationRoot().setGlobalCursor(cursor);
-      this.setCursor(cursor);
+      // https://jira.rocketsoftware.com/browse/LS-36479 - [#LS-36479] Fix regression issues for Qooxdoo 7.x - Start
+      // Use the old resize method for grid columns. Only on grid headers.    
+      //var useResizeCursor = false;
+      //var resizeCol = this._getResizeColumnForPageX(pageX);
+      //if (resizeCol != -1) {
+      //  // The pointer is over a resize region -> Show the right cursor
+      //  useResizeCursor = true;
+      //}
+      //var cursor = useResizeCursor ? "col-resize" : null;
+      //this.getApplicationRoot().setGlobalCursor(cursor);
+      //this.setCursor(cursor);
+      // https://jira.rocketsoftware.com/browse/LS-36479 - [#LS-36479] Fix regression issues for Qooxdoo 7.x - End
 
       var row = this._getRowForPagePos(pageX, pageY);
       if (row != null && this._getColumnForPageX(pageX) != null) {
@@ -1226,13 +1229,16 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
       var pageX = e.getDocumentLeft();
 
       // pointer is in header
-      var resizeCol = this._getResizeColumnForPageX(pageX);
-      if (resizeCol != -1) {
-        // The pointer is over a resize region -> Start resizing
-        this._startResizeHeader(resizeCol, pageX);
-        e.stop();
-        return;
-      }
+      // https://jira.rocketsoftware.com/browse/LS-36479 - [#LS-36479] Fix regression issues for Qooxdoo 7.x - Start
+      // Use the old resize method for grid columns. Only on grid headers.    
+      // var resizeCol = this._getResizeColumnForPageX(pageX);
+      // if (resizeCol != -1) {
+      //  // The pointer is over a resize region -> Start resizing
+      //  this._startResizeHeader(resizeCol, pageX);
+      //  e.stop();
+      //  return;
+      //}
+      // https://jira.rocketsoftware.com/browse/LS-36479 - [#LS-36479] Fix regression issues for Qooxdoo 7.x - End
 
       var pageY = e.getDocumentTop();
       var row = this._getRowForPagePos(pageX, pageY);
