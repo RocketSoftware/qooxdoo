@@ -197,7 +197,8 @@ qx.Class.define("qx.theme.manager.Font", {
 
     // apply method
     _applyTheme(value) {
-      var dest = (this._dynamic = {});
+      // var dest = (this._dynamic = {}); // LS-36479 - Fix regression issues for Qooxdoo 7.x
+      var dest = this._dynamic; // LS-36479 - Fix regression issues for Qooxdoo 7.x
 
       for (var key in dest) {
         if (dest[key].themed) {
