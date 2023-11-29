@@ -39,6 +39,7 @@ qx.Class.define("qx.html.Image", {
     );
 
     this.registerProperty("scale", null, this._setScaleProperty);
+    this.registerProperty("repeat", null, this._setRepeatProperty); //LS-39764 - Resolve qooxdoo 7.5 compile and runtime warnings
   },
 
   /*
@@ -109,7 +110,7 @@ qx.Class.define("qx.html.Image", {
 
       var source = this._getProperty("source");
       var scale = this._getProperty("scale");
-      var repeat = scale ? "scale" : this._getProperty("repeat") || "no-repeat"; //LWEB-183-enable-image-to-be-set-through-theme
+      var repeat = scale ? "scale" : this.getRepeat() || "no-repeat"; //LWEB-183-enable-image-to-be-set-through-theme //LS-39764 - Resolve qooxdoo 7.5 compile and runtime warnings
 
       // Source can be null in certain circumstances.
       // See bug #3701 for details.
@@ -149,7 +150,7 @@ qx.Class.define("qx.html.Image", {
     // overridden
     _createDomElement() {
       var scale = this._getProperty("scale");
-      var repeat = scale ? "scale" : this._getProperty("repeat") || "no-repeat"; //LWEB-183-enable-image-to-be-set-through-theme
+      var repeat = scale ? "scale" : this.getRepeat() || "no-repeat"; //LWEB-183-enable-image-to-be-set-through-theme //LS-39764 - Resolve qooxdoo 7.5 compile and runtime warnings
 
       if (qx.core.Environment.get("engine.name") == "mshtml") {
         var source = this._getProperty("source");
@@ -220,7 +221,7 @@ qx.Class.define("qx.html.Image", {
      * Whether the image should be scaled or not.
      *
      * @param value {Boolean} Scale the image
-     * @return {qx.html.Label} This instance for for chaining support.
+     * @return {qx.html.Label} This instance for chaining support.
      */
     setScale(value) {
       this._setProperty("scale", value);
@@ -234,6 +235,19 @@ qx.Class.define("qx.html.Image", {
      */
     getScale() {
       return this._getProperty("scale");
+    },
+	
+    setRepeat(value) { //LS-39764 - Resolve qooxdoo 7.5 compile and runtime warnings
+      this._setProperty("repeat", value);
+      return this;
+    },
+	
+    getRepeat() { //LS-39764 - Resolve qooxdoo 7.5 compile and runtime warnings
+      return this._getProperty("repeat");
+    },
+	
+    _setRepeatProperty(value) { //LS-39764 - Resolve qooxdoo 7.5 compile and runtime warnings
+      // Nothing
     }
   }
 });
