@@ -341,7 +341,7 @@ qx.Class.define("qx.ui.basic.Image", {
     _applyScale(value) {
       //LWEB-183-enable-image-to-be-set-through-theme     
       if(this.getSource()) {
-      this._styleSource();
+          this._styleSource();
       }
     },
 
@@ -548,7 +548,7 @@ qx.Class.define("qx.ui.basic.Image", {
         this.__loadUnmanagedImage(contentEl, source);
       }
       if(!this.getScale()) { //LWEB-183-enable-image-to-be-set-through-theme 
-        contentEl._setProperty("repeat", this.getRepeat());
+          contentEl.setRepeat(this.getRepeat()); //LS-39764 - Resolve qooxdoo 7.5 compile and runtime warnings
       }
     },
 
