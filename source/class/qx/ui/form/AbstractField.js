@@ -35,19 +35,16 @@ qx.Class.define("qx.ui.form.AbstractField", {
   type: "abstract",
 
   statics: {
-    /** Stylesheet needed to style the native placeholder element. */
-    __stylesheet: null,
-
-    __addedPlaceholderRules: false,
+    __addedPlaceholderRules: "",
 
     /**
      * Adds the CSS rules needed to style the native placeholder element.
      */
     __addPlaceholderRules() {
-      if (qx.ui.form.AbstractField.__addedPlaceholderRules) {
+      if (qx.ui.form.AbstractField.__addedPlaceholderRules === ajaxclient.ThemeLoader.getInstance().getCurrentThemeName()) {
         return;
       }
-      qx.ui.form.AbstractField.__addedPlaceholderRules = true;
+      qx.ui.form.AbstractField.__addedPlaceholderRules = ajaxclient.ThemeLoader.getInstance().getCurrentThemeName();
       var engine = qx.core.Environment.get("engine.name");
       var browser = qx.core.Environment.get("browser.name");
       var colorManager = qx.theme.manager.Color.getInstance();
@@ -99,11 +96,14 @@ qx.Class.define("qx.ui.form.AbstractField", {
           "-ms-input-placeholder, textarea.qx-placeholder-color",
           "-ms-input-placeholder"
         ].join(separator);
-        qx.ui.style.Stylesheet.getInstance().addRule(
+      }
+      if(qx.ui.style.Stylesheet.getInstance().hasRule(selector)) {
+        qx.ui.style.Stylesheet.getInstance().removeRule(selector);
+      }
+      qx.ui.style.Stylesheet.getInstance().addRule(
           selector,
           "color: " + color + " !important"
-        );
-      }
+      );
     },
     // https://jira.rocketsoftware.com/browse/LS-16979 - [#LS-16979] Web client: Using field uppercase repositions the cursor incorrectly
     "NONE": 0,
@@ -970,9 +970,7 @@ qx.Class.define("qx.ui.form.AbstractField", {
         this._placeholder.dispose();
         this._placeholder = null;
       }
-      if (!this.__useQxPlaceholder && qx.ui.form.AbstractField.__stylesheet) {
-        qx.bom.Stylesheet.removeSheet(qx.ui.form.AbstractField.__stylesheet);
-        qx.ui.form.AbstractField.__stylesheet = null;
+      if (!this.__useQxPlaceholder) {
         qx.ui.form.AbstractField.__addPlaceholderRules();
       }
     },
