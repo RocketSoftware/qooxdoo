@@ -58,7 +58,7 @@ qx.Class.define("qx.tool.compiler.makers.AppMaker", {
 
     /**
      * Returns the array of applications
-     * @returns {Application[]}
+     * @returns {qx.tool.compiler.app.Application[]}
      */
     getApplications() {
       return this.__applications;
@@ -165,16 +165,16 @@ qx.Class.define("qx.tool.compiler.makers.AppMaker", {
       this.__applications.forEach(app => app.setAnalyser(analyser));
       await target.open();
 
-      if (this.isOutputTypescript()) {
-        analyser.getLibraries().forEach(library => {
-          var symbols = library.getKnownSymbols();
-          for (var name in symbols) {
-            var type = symbols[name];
-            if (type === "class" && name !== "q" && name !== "qxWeb") {
-              analyser.addClass(name);
-            }
+      for (let library of analyser.getLibraries()) {
+        let fontsData = library.getFontsData();
+        for (let fontName in fontsData) {
+          let fontData = fontsData[fontName];
+          let font = analyser.getFont(fontName);
+          if (!font) {
+            font = analyser.getFont(fontName, true);
+            await font.updateFromManifest(fontData, library);
           }
-        });
+        }
       }
 
       this.__applications.forEach(function (app) {
@@ -208,6 +208,7 @@ qx.Class.define("qx.tool.compiler.makers.AppMaker", {
           let stat = await qx.tool.utils.files.Utils.safeStat(
             localModules[requireName]
           );
+
           res ||=
             stat.mtime.getTime() >
             (db?.modulesInfo?.localModules[requireName] || 0);
@@ -271,11 +272,6 @@ qx.Class.define("qx.tool.compiler.makers.AppMaker", {
       }
 
       await this.fireDataEventAsync("writtenApplications", allAppInfos);
-      if (this.isOutputTypescript()) {
-        await new qx.tool.compiler.targets.TypeScriptWriter(target)
-          .set({ outputTo: this.getOutputTypescriptTo() })
-          .run();
-      }
 
       await analyser.saveDatabase();
       await this.fireEventAsync("made");

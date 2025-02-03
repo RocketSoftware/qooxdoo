@@ -78,9 +78,9 @@ The `applications` key is an array of objects, and each object can contain:
 
 - `group` - this is either a string or an array of strings, and is used to group
   applications together; by using the `--app-group` command line arg when compiling,
-  you can choose to only compile those application which have a given group name
+  you can choose to only compile those applications which have a given group name
 
-- `title` - (**optional**) this is the human readable, customer facing
+- `title` - (**optional**) this is the human-readable, customer facing
   description used to set the `<title>` tag of the application web page, i.e. in
   the application's index.html
 
@@ -114,7 +114,7 @@ The `applications` key is an array of objects, and each object can contain:
   typical, web browser based, application or "node" for a node.js server
   application.
 
-- `loaderTemplate` - (**optional**, **advanced**) this is the boot loader
+- `loaderTemplate` - (**optional**, **advanced**) this is the bootloader
   template file, usually determined automatically from the application `type`
 
 - `minify` - (**optional**) determines the minification to be used for this
@@ -125,7 +125,7 @@ The `applications` key is an array of objects, and each object can contain:
 - `default` - (**optional**) if true, this application is considered the default
   when serving the application; if not provided then the first browser app is
   the default application. When applications are generated, each application has
-  it's own directory inside the target directory and also has it's own
+  its own directory inside the target directory and also has its own
   `index.html`. However, there is an `index.html` which is generated in the
   target output directory that runs the "default" application.
 
@@ -140,8 +140,7 @@ The `applications` key is an array of objects, and each object can contain:
   names by which a local module may be `require()`d in qooxdoo code. The
   value for each of those keys is the path, from where `compile.json`
   is located, to the module to be included. See [the complete
-  documentation of this
-  feature](development/compiler/confguration/README.md), for details.
+  documentation of this feature](../configuration/README.md), for details.
 
 A complete example is:
 
@@ -169,7 +168,7 @@ be compiled. Each object can contain:
 
 - `type` - this is either "source", "build", or a class name; using a class name 
   is advanced usage, but ultimately the standard names just shortcuts to class 
-  names anyway ("source" is `qx.tool.compiler.targets.SourceTarget`, etc).
+  names anyway ("source" is `qx.tool.compiler.targets.SourceTarget`, etc.).
 
 - `outputPath` the folder where the compilation outputs to, and will be created
   if it does not already exist
@@ -194,7 +193,7 @@ be compiled. Each object can contain:
 - `typescript` - see below
 
 - `minify` - (**optional**) determines the minification to be used for
-  applications, if the target supports it; can be overridden on a per
+  applications, if the target supports it; can be overridden on a per-
   application basis. Can be `off`, `minify`, `mangle`, or `beautify`.
   
 - `inline-external-scripts` -- (**optional**) controls whether external scripts are added
@@ -207,7 +206,16 @@ be compiled. Each object can contain:
   a hidden property called `$$createdAt` which points to an object containing
   `filename`, `lineNumber`, and `column` properties
 
-- `babelOptions` - (**optional**) options given to @babel/preset-env. With this
+- `verboseCreatedAt` - (**optional**) if true, all hidden `$$createdAt` objects
+  will be provided with a stack trace at their time and place of creation, allowing
+  for more detailed debugging.
+
+- `browserifyOptions` - (**optional**) options given to browserify. For details see here:
+  <https://github.com/browserify/browserify#usage> When setting
+  `browserifyOptions` on a target, they will be merged into the top-level
+  `browserify.options`.
+
+- `babelOptions` - (**optional**) options given to @babel/preset-env. With these
   options the output type of babel can be defined. For details see here:
   <https://babeljs.io/docs/en/babel-preset-env#options> When setting
   `babelOptions` on a target, they will be merged into the top-level
@@ -235,7 +243,7 @@ You can also add plugins and global options to babel (at the top level only), fo
 ```json5
   "babel": {
     "plugins": {
-      "@babel/plugin-proposal-optional-chaining": true
+      "@babel/plugin-transform-optional-chaining": true
     },
     "options": {
         "targets": "node >= 12"
@@ -250,7 +258,7 @@ and the value of which is either `true` (to enable), or `false` (to not add the
 plugin), or an object configuring the plugin.
 
 There is risk in adding support for additional, non-standard babel plugins - EG
-the @babel/plugin-proposal-\* plug ins which add early proposed additions to
+the @babel/plugin-proposal-* plug ins which add early proposed additions to
 javascript.
 
 Not surprisingly this comes with caveats, first of which is that changes to the
@@ -272,7 +280,7 @@ should be useful.
 
 - `proxySourcePath` - (**optional**) when compiling source code, the compiler
 normally looks in the library, in the directory specified by that library's
-`Manifest.json` in `provides/class` (eg usually this is `./source/class`).  The
+`Manifest.json` in `provides/class` (e.g. usually this is `./source/class`).  The
 `proxySourcePath` setting in a target allows a global override, specific to that
 target, which says that source files can be found somewhere else, in preference
 to the files which are found in the library.  While this allows a target to completely
@@ -376,7 +384,7 @@ If you don't specify a `libraries` key, then by default it uses the current
 directory (provided that there is a `Manifest.json` file) as a library; this
 makes sense for most applications. The compiler also needs to have access to a
 copy of the Qooxdoo framework library to compile your application, and by
-default it will auto detect Qooxdoo and use it.
+default it will auto-detect Qooxdoo and use it.
 
 You can override this by specifying a list of directories in the `libraries`
 key, for example:
@@ -390,7 +398,7 @@ key, for example:
 ```
 
 Unless you list it in the `libraries` key, the compiler will
-look first in your `node_modules` directory and then it's own
+look first in your `node_modules` directory and then its own
 `node_modules` directory for the `@qooxdoo/framework` npm module.
 
 ## Parts
@@ -436,7 +444,7 @@ an `environment` key, for example:
     /* ... snip ... */
     "defaultTarget": "source",
     "environment": {
-        "qx.icontheme": "Oxygen"
+        "qx.icontheme": "Oxygen",
         "demoapp.myCustomSetting": 42
     }
 }
@@ -445,8 +453,8 @@ an `environment` key, for example:
 If you add the `environment` block at the top level of the compile.json (as in
 the example above), they will effect every application regardless of the target.
 You can also add `environment` to the Target and/or to the Application, they
-will be merged so that the Application's environment takes prescedence over
-Target's environment, which in turn takes prescedence over the top level. For
+will be merged so that the Application's environment takes precedence over
+Target's environment, which in turn takes precedence over the top level. For
 example:
 
 ```json5
@@ -480,14 +488,14 @@ example:
         }
     ],
     "environment": {
-        "qx.icontheme": "Oxygen"
+        "qx.icontheme": "Oxygen",
         "demoapp.myCustomSetting": 1
     }
 }
 ```
 
 In this example, `demoapp.myCustomSetting` is always 3 for the `appone`
-Application, and either 1 or 2 for `apptwo` depending on whether you're compile
+Application, and either 1 or 2 for `apptwo` depending on whether you compile
 a `source` Target or a `build` Target.
 
 ### Code Elimination
@@ -510,7 +518,7 @@ keep for runtime decisions and not perform code elimination for.
 ## Locales
 
 Qooxdoo applications are by default compiled only using the "en" locale for
-transation strings, but you can change this by adding the `locales` key as an
+translation strings, but you can change this by adding the `locales` key as an
 array, for example:
 
 ```json5
@@ -559,7 +567,7 @@ browser will need to have access to the original, untranspiled source files in
 order to be able to debug your original code.
 
 The `"path-mappings"` configuration is a generic means to locate files on disk
-inside the URI addsress space of the application; for example, if a library like
+inside the URI address space of the application; for example, if a library like
 Qooxdoo is stored outside of your web root you might choose to add a mapping
 like this:
 
@@ -578,27 +586,53 @@ is the URI.
 It is up to you to implement the mapping inside your web server so that the
 "/some/virtual/uri/path/qooxdoo" URI is able to load the files from `../qooxdoo`
 
-## TypeScript
+### Keeping all files within the application directory
 
-** Note that this has changed: you no longer add a new target ** TypeScript can
-be output by either using the `--typescript` option to `qx compile`, or by
-modifying your target(s) to add `typescript: true` ; if you use a string instead
-of `true`, the string is the name of the file which is generated inside the
-target output directory, for example:
+When the compiler generates applications, it creates `transpiled` and `resource`
+directories at the same level as the application name, and adds various working
+files, eg:
 
-```json5
-    /** Targets */
-    "targets": [
-        {
-            "type": "source",
-            "outputPath": "compiled/source",
-            typescript: true
-        }
-        /* ... snip ... */
-    ]
+```
+compiled/
+  source/
+    myAppName/
+    transpiled/
+    resource/
+    db.json
+    resource-db.json
 ```
 
-The TypeScript definition is output into `./compiled/source/qooxdoo.d.ts`
+This requires that you expose the `compiled/source` directory on your webserver, but 
+you can also make the `transpiled` and `resource` directories *appear* to be inside the
+application directory by setting `privateArtifacts: true` in the top level of `compile.json`
+
+You will have to configure your web server to serve `transpiled` and `resource` as virtual
+folders from within the URL that you use for `myAppName`.
+
+## TypeScript and Meta Data
+
+To output Typescript definitions, use the `qx compile --typescript` command; this
+will generate meta data for every class in every library, and then use the meta
+data to create a `qxoodoo.d.ts` file. Meta data is used by applications such as
+the API Viewer
+
+You can control the directory that meta data is output to and the name of the qooxdoo.d.ts 
+file by using the `meta` and `typescript` properties in `compile.json`; these are the
+defaults:
+
+```
+  "meta": "compiled/meta",
+  "typescript": "compiled/qooxdoo.d.ts",
+```
+
+A file called `global.d.ts` is also created and placed under your application's
+`source` directory. This file may be useful for tooling and text editors when
+discovering types. Depending on your text editor, it may be beneficial to keep
+the `global.d.ts` file open, or to create a `jsconfig.json` or `tsconfig.json`
+file in your project root.
+
+** Note that this has changed: you no longer add a new target, nor do you need to add 
+`typescript: true` to one of your existing targets. **
 
 ## Eslint
 
@@ -619,7 +653,7 @@ The qx lint command is configured by an eslintConfig section in compile.js:
   }
 ```
 
-The syntax is the same as in in package.json. Explanation can be found here:
+The syntax is the same as in package.json. Explanation can be found here:
 <https://eslint.org/docs/user-guide/configuring> .
 
 If you omit the eslintConfig section a default will be used:

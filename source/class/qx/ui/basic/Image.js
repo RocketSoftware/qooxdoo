@@ -144,6 +144,16 @@ qx.Class.define("qx.ui.basic.Image", {
     allowGrowY: {
       refine: true,
       init: false
+    },
+
+    /**
+     * Source of image to display if the image in the `source` property fails to load.
+     */
+    fallbackSource: {
+      check: "String",
+      init: null,
+      nullable: true,
+      event: "changeFallbackSource"
     }
   },
 
@@ -189,6 +199,19 @@ qx.Class.define("qx.ui.basic.Image", {
     __currentContentElement: null,
     __wrapper: null,
     __requestId: 0,
+    /**
+     * If the image in the `source` property failed to load.
+     */
+    __failedToLoad: false,
+
+    /**
+     * @type {string} The actual source of the image that we display.
+     * While the `source` property is what we want to display,
+     * this property is what we are actually showing.
+     * This can be the `source` property but it can also be the `fallbackSource` property
+     * if the image in the `source` property failed to load.
+     */
+    __sourceToDisplay: null,
 
     // overridden
     _onChangeTheme() {
@@ -225,7 +248,7 @@ qx.Class.define("qx.ui.basic.Image", {
     _applyDecorator(value, old) {
       super._applyDecorator(value, old);
 
-      var source = this.getSource();
+      var source = this.__sourceToDisplay;
       source = qx.util.AliasManager.getInstance().resolve(source);
       var el = this.getContentElement();
       if (this.__wrapper) {
@@ -260,13 +283,14 @@ qx.Class.define("qx.ui.basic.Image", {
       var element = this.getContentElement();
       if (this.__wrapper) {
         element.getChild(0).setStyles({
-          top: this.getPaddingTop() || 0,
-          left: this.getPaddingLeft() || 0
+          top: (this.getPaddingTop() || 0) + "px",
+          left: (this.getPaddingLeft() || 0) + "px"
         });
       } else if (this.__getMode() === "font") {
+        let bounds = this.getBounds() || {};
         element.setStyles({
-          top: this.getPaddingTop() || 0,
-          left: this.getPaddingLeft() || 0
+          top: (bounds.top || 0) + (this.getPaddingTop() || 0) + "px",
+          left: (bounds.left || 0) + (this.getPaddingLeft() || 0) + "px"
         });
       } else {
         element.setPadding(
@@ -306,7 +330,7 @@ qx.Class.define("qx.ui.basic.Image", {
     _applyEnabled(value, old) {
       super._applyEnabled(value, old);
 
-      if (this.getSource()) {
+      if (this.__sourceToDisplay) {
         this._styleSource();
       }
     },
@@ -320,6 +344,8 @@ qx.Class.define("qx.ui.basic.Image", {
         }
       }
 
+      this.__failedToLoad = false;
+      this.__sourceToDisplay = value;
       this._styleSource();
     },
 
@@ -344,7 +370,7 @@ qx.Class.define("qx.ui.basic.Image", {
      */
     __getMode() {
       if (this.__mode == null) {
-        var source = this.getSource();
+        var source = this.__sourceToDisplay;
 
         if (source && qx.lang.String.startsWith(source, "@")) {
           this.__mode = "font";
@@ -412,6 +438,7 @@ qx.Class.define("qx.ui.basic.Image", {
 
       if (mode == "font") {
         element.setRich(true);
+        element.setStyle("line-height", "1");
       } else {
         element.setScale(scale);
 
@@ -456,13 +483,12 @@ qx.Class.define("qx.ui.basic.Image", {
     /**
      * Applies the source to the clipped image instance or preload
      * an image to detect sizes and apply it afterwards.
-     *
      */
     _styleSource() {
       var AliasManager = qx.util.AliasManager.getInstance();
       var ResourceManager = qx.util.ResourceManager.getInstance();
 
-      var source = AliasManager.resolve(this.getSource());
+      var source = AliasManager.resolve(this.__sourceToDisplay);
 
       var element = this.getContentElement();
       if (this.__wrapper) {
@@ -634,7 +660,8 @@ qx.Class.define("qx.ui.basic.Image", {
           }
 
           // Don't transfer background image when switching from image to icon font
-          if (this.__getMode() === "font") {
+          var mode = this.__getMode();
+          if (mode === "font" || mode === "scaled") {
             delete styles.backgroundImage;
           }
 
@@ -689,9 +716,11 @@ qx.Class.define("qx.ui.basic.Image", {
           newEl.tagNameHint = hint;
           newEl.setAttribute("class", currentEl.getAttribute("class"));
 
-          // Flush elements to make sure the DOM elements are created.
-          qx.html.Element.flush();
           var currentDomEl = currentEl.getDomElement();
+          if (currentDomEl && !elementToAdd.getDomElement()) {
+            // Flush elements to make sure the DOM elements are created.
+            qx.html.Element.flush();
+          }
           var newDomEl = elementToAdd.getDomElement();
 
           // copy event listeners
@@ -785,7 +814,10 @@ qx.Class.define("qx.ui.basic.Image", {
       if (this.getScale()) {
         el.setStyle("fontSize", (width > height ? height : width) + "px");
       } else {
-        var source = qx.util.AliasManager.getInstance().resolve(this.getSource());
+        var source = qx.util.AliasManager.getInstance().resolve(
+          this.__sourceToDisplay
+        );
+
         var sparts = source.split("/");
         var font = this.__getFont(source);
         var size = parseInt(sparts[2] || font.getSize());
@@ -797,7 +829,8 @@ qx.Class.define("qx.ui.basic.Image", {
       super._applyDimension();
 
       var isFont =
-        this.getSource() && qx.lang.String.startsWith(this.getSource(), "@");
+        this.__sourceToDisplay &&
+        qx.lang.String.startsWith(this.__sourceToDisplay, "@");
       if (isFont) {
         var el = this.getContentElement();
         if (el) {
@@ -864,6 +897,11 @@ qx.Class.define("qx.ui.basic.Image", {
         ImageLoader.load(source, this.__loaderCallback, this);
       } else {
         this.__resetSource(el);
+        if (!this.__failedToLoad && this.getFallbackSource()) {
+          this.__failedToLoad = true;
+          this.__sourceToDisplay = this.getFallbackSource();
+          this._styleSource();
+        }
       }
     },
 
@@ -896,6 +934,7 @@ qx.Class.define("qx.ui.basic.Image", {
     },
 
     /**
+     * Sets image source on the DOM element
      * Combines the decorator's image styles with our own image to make sure
      * gradient and backgroundImage decorators work on Images.
      *
@@ -984,6 +1023,32 @@ qx.Class.define("qx.ui.basic.Image", {
     },
 
     /**
+     * Tries to display the image in the `source` property again if it has failed to load.
+     */
+    tryReload() {
+      if (!this.__failedToLoad) {
+        return;
+      }
+      this.__failedToLoad = false;
+      this.__sourceToDisplay = this.getSource();
+      qx.io.ImageLoader.load(
+        this.getSource(),
+        () => this._styleSource(),
+        undefined,
+        {
+          retryFailed: true
+        }
+      );
+    },
+
+    /**
+     * @returns {boolean} If the image in the `source` property failed to load.
+     */
+    hasFailedToLoad() {
+      return this.__failedToLoad;
+    },
+
+    /**
      * Event handler fired after the preloader has finished loading the icon
      *
      * @param source {String} Image source which was loaded
@@ -997,7 +1062,8 @@ qx.Class.define("qx.ui.basic.Image", {
 
       // Ignore when the source has already been modified
       if (
-        source !== qx.util.AliasManager.getInstance().resolve(this.getSource())
+        source !==
+        qx.util.AliasManager.getInstance().resolve(this.__sourceToDisplay)
       ) {
         this.fireEvent("aborted");
         return;
@@ -1007,6 +1073,12 @@ qx.Class.define("qx.ui.basic.Image", {
       if (imageInfo.failed) {
         this.warn("Image could not be loaded: " + source);
         this.fireEvent("loadingFailed");
+        if (!this.__failedToLoad && this.getFallbackSource()) {
+          this.__failedToLoad = true;
+          this.__sourceToDisplay = this.getFallbackSource();
+          this._styleSource();
+          return;
+        }
       } else if (imageInfo.aborted) {
         this.fireEvent("aborted");
         return;

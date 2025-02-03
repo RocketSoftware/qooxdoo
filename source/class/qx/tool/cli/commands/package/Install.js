@@ -538,6 +538,9 @@ qx.Class.define("qx.tool.cli.commands.package.Install", {
      * @return {Promise<Boolean>} Wether any libraries were installed
      */
     async __installDependenciesFromManifest(manifest) {
+      if (!manifest.requires) {
+        return false;
+      }
       for (let lib_uri of Object.getOwnPropertyNames(manifest.requires)) {
         let lib_range = manifest.requires[lib_uri];
         switch (lib_uri) {
@@ -677,6 +680,9 @@ qx.Class.define("qx.tool.cli.commands.package.Install", {
 
         return false;
       }
+      // relaod config. We need a fresh model here because data will be verified.
+      // The original model is enriched during parsing so validate will fail.
+      compileConfigModel.setLoaded(false);
       await compileConfigModel.load();
       let app = compileConfigModel.getValue("applications").find(app => {
         if (manifestApp.name && app.name) {

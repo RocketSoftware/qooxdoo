@@ -833,13 +833,17 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
       }
       var scrollbar = this.__verScrollBar;
       this.__inOnScrollY = true;
-      // calculate delta so that one row is scrolled at an minimum
+      // calculate delta so that one row is scrolled at a minimum
       var rowHeight = this.getTable().getRowHeight();
       var delta = e.getData() - e.getOldData();
       if (Math.abs(delta) > 1 && Math.abs(delta) < rowHeight) {
         delta =
           delta < 0 ? e.getOldData() - rowHeight : e.getOldData() + rowHeight;
-        if (delta >= 0 && delta <= scrollbar.getMaximum()) {
+        if (
+          delta >= 0 &&
+          delta <= scrollbar.getMaximum() &&
+          Math.abs(scrollbar.getPosition() - delta) > rowHeight
+        ) {
           scrollbar.setPosition(delta);
         }
       }
@@ -1869,6 +1873,7 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
           // Make the focus indicator visible during editing
           this.__focusIndicator.setDecorator("table-scroller-focus-indicator");
 
+          this._cellEditor.addListenerOnce('focusin', this._onFocusinCellEditorAddBlurListener, this);
           this._cellEditor.focus();
           this._cellEditor.activate();
         }
@@ -1961,6 +1966,40 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
     },
 
     /**
+     * Focusin event handler which attaches the blur event listener ot the cell editor
+     * and uses a timer event to allow the focusin event listener execution before
+     * the blur event listener execution
+     */
+    _onFocusinCellEditorAddBlurListener(e) {
+      this.debug("executed FOCUSIN event listener for hash: " + e.getTarget().$$hash);
+      qx.event.Timer.once(function() {
+        this._cellEditor.addListenerOnce('blur', this._onBlurCellEditorStopEditing, this);
+        this.debug('added BLUR listener to hash: ' + this._cellEditor.$$hash);
+      }, this, 0);
+    },
+
+    /**
+     * Stop editing whenever the cell editor blurs.
+     */
+    _onBlurCellEditorStopEditing(e) {
+      this.debug("executed BLUR listener for hash " + e.getTarget().$$hash);
+      if (this._cellEditor === e.getTarget()) {
+        this.debug('hash: ' + this._cellEditor.$$hash);
+        switch (this.getTable().getCellEditorBlurAction()) {
+          case "save":
+            this.stopEditing();
+            break;
+          case "cancel":
+            this.cancelEditing();
+            break;
+          case "nothing":
+          default:
+            // do nothing
+        }
+      }
+    },
+
+    /**
      * Returns the model index of the column the pointer is over or null if the pointer
      * is not over a column.
      *
@@ -2037,12 +2076,13 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
 
       if (pageY >= panePos.top && pageY <= panePos.bottom) {
         // This event is in the pane -> Get the row
-        var rowHeight = this.getTable().getRowHeight();
+        var rowHeight = this.__tablePane.getRenderedRowHeight();
 
         var scrollY = this.__verScrollBar.getPosition();
 
         if (this.getTable().getKeepFirstVisibleRowComplete()) {
-          scrollY = Math.floor(scrollY / rowHeight) * rowHeight;
+          scrollY =
+            Math.floor(scrollY / this.getTable().getRowHeight()) * rowHeight;
         }
 
         var tableY = scrollY + pageY - panePos.top;

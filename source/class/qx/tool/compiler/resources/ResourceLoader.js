@@ -28,7 +28,21 @@ qx.Class.define("qx.tool.compiler.resources.ResourceLoader", {
   extend: qx.tool.compiler.resources.AbstractMatcher,
   type: "abstract",
 
+  /**
+   * Constructor
+   *
+   * @param {String} match the match for the filename
+   * @param {qx.tool.compiler.resources.Manager} manager resource manager
+   */
+  construct(match, manager) {
+    super(match);
+    this.__manager = manager;
+  },
+
   members: {
+    /** @type{qx.tool.compiler.resources.Manager} the resource manager this loader belongs to */
+    __manager: null,
+
     /**
      * Detects whether the file needs to be recompiled/coverted/analysed/ etc; this should
      * not take any time or be asynchronous, if you need to do any real work it should be
@@ -37,7 +51,7 @@ qx.Class.define("qx.tool.compiler.resources.ResourceLoader", {
      * @param filename {String} absolute path to the file
      * @param fileInfo {Map?} this is the object in the resource database, contains info about the resource;
      *  this will be null if not yet in the resource database
-     * @param stat {fs.Stats} Stats object from fs.stat
+     * @param stat {import("node:fs").Stats} Stats object from fs.stat
      *
      * @return {Boolean}
      */
@@ -56,6 +70,13 @@ qx.Class.define("qx.tool.compiler.resources.ResourceLoader", {
      */
     async load(asset) {
       throw new Error("No implementation for " + this.classname + ".compile");
+    },
+
+    /**
+     * @return {qx.tool.compiler.resources.Manager} the manager
+     */
+    getManager() {
+      return this.__manager;
     }
   }
 });

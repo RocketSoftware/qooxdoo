@@ -1,19 +1,5 @@
 # Technical view on the low-level APIs
 
-<div class="note">
-
-<div class="admonition-title">
-
-Note
-
-</div>
-
-This document describes implementation details. The user API is covered in
-%{Website} and the
-`corresponding overview documentation </pages/website/overview>`.
-
-</div>
-
 ## qx.bom - Browser Object Model
 
 The classes contained in the `qx.bom` namespace provide a cross-browser
@@ -60,7 +46,7 @@ animation, attribute, property, background, cursor
 
 ### Wrapper for native layers/objects
 
-These classes offer an unique and powerful way to deal with native layers and
+These classes offer a unique and powerful way to deal with native layers and
 objects. Wrappers exist for:
 
 - the current document
@@ -93,11 +79,11 @@ Features include:
 ## qx.dom - Cross-browser DOM manipulation
 
 The Document Object Model (DOM) is a tree model that represents the document in
-a browser. The classes provided by this packages allow you to query, to
-manipulate (i.e. add, remove, change order or replace) and to check the nodes
+a browser. The classes provided by these packages allow you to query, to
+manipulate (i.e. add, remove, change order or replace), and to check the nodes
 contained in the DOM.
 
-Currently the `qx.dom` package consists of three classes:
+Currently, the `qx.dom` package consists of three classes:
 
 - **Element**: manages children structures, inserts, removes and replaces nodes
 - **Hierarchy**: for querying nodes

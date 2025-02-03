@@ -99,7 +99,7 @@ qx.Class.define("qx.tool.cli.commands.Test", {
       let exitCode = evt.getData();
       // overwrite error code only in case of errors
       if (exitCode !== 0 && argv.failFast) {
-        process.exit(exitCode);
+        process.exit(Math.min(255, exitCode));
       }
     });
   },
@@ -152,6 +152,9 @@ qx.Class.define("qx.tool.cli.commands.Test", {
         }
         // overwrite error code only in case of errors
         if (exitCode !== 0) {
+          if (test.getFailFast()) {
+            this.argv.failFast = true;
+          }  
           this.setExitCode(exitCode);
         }
       });
@@ -188,12 +191,15 @@ qx.Class.define("qx.tool.cli.commands.Test", {
              See documentation at https://qooxdoo.org/docs/#/development/testing/`
           );
 
-          process.exit(-1);
+          process.exit(1);
         }
       });
 
       this.addListener("afterStart", async () => {
         qx.tool.compiler.Console.info(`Running unit tests`);
+        if (this.argv.verbose) {
+          console.log(this.argv);
+        }
         await this.fireDataEventAsync("runTests", this);
         if (
           this.getCompilerApi() &&
@@ -206,6 +212,7 @@ qx.Class.define("qx.tool.cli.commands.Test", {
           await test.execute();
         }
         // for bash exitcode is not allowed to be more then 255!
+        // We must exit the process here because serve runs infinite!
         process.exit(Math.min(255, this.getExitCode()));
       });
 
@@ -216,7 +223,7 @@ qx.Class.define("qx.tool.cli.commands.Test", {
         // compile only
         await qx.tool.cli.commands.Compile.prototype.process.call(this);
         // since the server is not started, manually fire the event necessary for firing the "runTests" event
-        this.fireEvent("afterStart");
+        await this.fireDataEventAsync("afterStart");
       }
     },
 

@@ -25,25 +25,31 @@ const semver = require("semver");
  */
 qx.Class.define("qx.tool.cli.Cli", {
   extend: qx.core.Object,
+  properties: {
+    command: {
+      apply: "__applyCommand"
+    }
+  },
 
   construct() {
     super();
     if (qx.tool.cli.Cli.__instance) {
       throw new Error("qx.tool.cli.Cli has already been initialized!");
     }
+    this.__compileJsExists = false;
     qx.tool.cli.Cli.__instance = this;
     // include & register log appender
     qx.log.appender.NodeConsole;
   },
 
   members: {
-    /** @type {yargs} the current yargs instance */
+    /** @type {typeof import("yargs")} the current yargs instance */
     yargs: null,
 
     /** @type {Object} the current argv */
     argv: null,
 
-    /** @type {CompilerApi} the CompilerApi instance */
+    /** @type {qx.tool.cli.api.CompilerApi} the CompilerApi instance */
     _compilerApi: null,
 
     /** @type {String} the compile.js filename, if there is one */
@@ -53,18 +59,20 @@ qx.Class.define("qx.tool.cli.Cli", {
     _compileJsonFilename: null,
 
     /** @type {Object} Parsed arguments */
-    _parsedArgs: null,
-
-    /** @type {Promise} Promise that resolves to the _parsedArgs, but only when completely finished parsing them */
-    __promiseParseArgs: null,
+    __parsedArgs: null,
 
     /** @type {Boolean} Whether libraries have had their `.load()` method called yet */
     __librariesNotified: false,
 
+    __applyCommand(command) {
+      command.setCompilerApi(this._compilerApi);
+      this._compilerApi.setCommand(command);
+    },
+
     /**
      * Creates an instance of yargs, with minimal options
      *
-     * @return {yargs}
+     * @return {import("yargs")}
      */
     __createYargs() {
       return (this.yargs = require("yargs")
@@ -182,12 +190,14 @@ Version: v${await qx.tool.config.Utils.getQxVersion()}
           "Config",
           "Deploy",
           "Es6ify",
+          "ExportGlyphs",
           "Package",
           "Pkg", // alias for Package
           "Create",
           "Lint",
           "Run",
           "Test",
+          "Typescript",
           "Serve",
           "Migrate"
         ],
@@ -237,22 +247,14 @@ Version: v${await qx.tool.config.Utils.getQxVersion()}
      * provides a standard error control and makes sure that the libraries know what command has
      * been selected.
      *
-     * @param command {qx.tool.cli.Command} the command being run
+     * @param command {qx.tool.cli.commands.Command} the command being run
      */
     async processCommand(command) {
       qx.tool.compiler.Console.getInstance().setVerbose(this.argv.verbose);
-      command.setCompilerApi(this._compilerApi);
-      this._compilerApi.setCommand(command);
       await this.__notifyLibraries();
-      try {
-        const res = await command.process();
-        await this._compilerApi.afterProcessFinished(command, res);
-        return res;
-      } catch (e) {
-        qx.tool.compiler.Console.error("Error: " + (e.stack || e.message));
-        process.exit(1);
-        return null;
-      }
+      const res = await command.process();
+      await this._compilerApi.afterProcessFinished(command, res);
+      return res;
     },
 
     /**
@@ -260,8 +262,8 @@ Version: v${await qx.tool.config.Utils.getQxVersion()}
      *
      * @return {Object}
      */
-    async getParsedArgs() {
-      return await this.__promiseParseArgs;
+    getParsedArgs() {
+      return this.__parsedArgs;
     },
 
     /**
@@ -283,8 +285,8 @@ Version: v${await qx.tool.config.Utils.getQxVersion()}
       var args = qx.lang.Array.clone(process.argv);
       args.shift();
       process.title = args.join(" ");
-      this.__promiseParseArgs = this.__parseArgsImpl();
-      await this.__promiseParseArgs;
+      await this.__parseArgsImpl();
+      return this.processCommand(this.getCommand());
     },
 
     /**
@@ -327,6 +329,7 @@ Version: v${await qx.tool.config.Utils.getQxVersion()}
 
       let CompilerApi = qx.tool.cli.api.CompilerApi;
       if (await fs.existsAsync(compileJsFilename)) {
+        this.__compileJsExists = true;
         let compileJs = await this.__loadJs(compileJsFilename);
         this._compileJsFilename = compileJsFilename;
         if (compileJs.CompilerApi) {
@@ -356,8 +359,7 @@ Version: v${await qx.tool.config.Utils.getQxVersion()}
             (await qx.tool.utils.Json.loadJsonAsync(name)) || lockfileContent;
         } catch (ex) {
           // Nothing
-        }
-        // check semver-type compatibility (i.e. compatible as long as major version stays the same)
+        } // check semver-type compatibility (i.e. compatible as long as major version stays the same)
         let schemaVersion = semver.coerce(
           qx.tool.config.Lockfile.getInstance().getVersion(),
           true
@@ -569,8 +571,8 @@ Version: v${await qx.tool.config.Utils.getQxVersion()}
           config.serve.listenPort || this.argv.listenPort;
       }
 
-      this._parsedArgs = await compilerApi.getConfiguration();
-      return this._parsedArgs;
+      this.__parsedArgs = await compilerApi.getConfiguration();
+      return this.__parsedArgs;
     },
 
     /**
@@ -610,9 +612,18 @@ Version: v${await qx.tool.config.Utils.getQxVersion()}
     },
 
     /**
+     * Returns if the file compile.js exists
+     *
+     * @returns {Boolean}
+     */
+    compileJsExists() {
+      return this.__compileJsExists;
+    },
+
+    /**
      * Returns the CompilerApi instance
      *
-     * @return {CompilerApi}
+     * @return {qx.tool.cli.api.CompilerApi}
      */
     getCompilerApi() {
       return this._compilerApi;
@@ -673,7 +684,7 @@ Version: v${await qx.tool.config.Utils.getQxVersion()}
     /**
      * Adds commands to Yargs
      *
-     * @param yargs {yargs} the Yargs instance
+     * @param yargs {typeof import("yargs")} the Yargs instance
      * @param classNames {String[]} array of class names, each of which is in the `packageName` package
      * @param packageName {String} the name of the package to find each command class
      */
@@ -692,7 +703,7 @@ Version: v${await qx.tool.config.Utils.getQxVersion()}
         if (data) {
           if (data.handler === undefined) {
             data.handler = argv =>
-              qx.tool.cli.Cli.getInstance().processCommand(new Clazz(argv));
+              qx.tool.cli.Cli.getInstance().setCommand(new Clazz(argv));
           }
           yargs.command(data);
         }

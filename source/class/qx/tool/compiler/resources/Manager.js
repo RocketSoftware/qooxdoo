@@ -43,8 +43,8 @@ qx.Class.define("qx.tool.compiler.resources.Manager", {
     this.__analyser = analyser;
     this.__dbFilename = analyser.getResDbFilename() || "resource-db.json";
     this.__loaders = [
-      new qx.tool.compiler.resources.ImageLoader(),
-      new qx.tool.compiler.resources.MetaLoader()
+      new qx.tool.compiler.resources.ImageLoader(this),
+      new qx.tool.compiler.resources.MetaLoader(this)
     ];
 
     this.__converters = [
@@ -105,7 +105,7 @@ qx.Class.define("qx.tool.compiler.resources.Manager", {
      * an error if more than one library is found.
      *
      * @param uri {String} URI
-     * @return {Library[]} the libraries, empty list if not found
+     * @return {qx.tool.compiler.app.Library[]} the libraries, empty list if not found
      */
     findLibraryForResource(uri) {
       let result = this.findLibrariesForResource(uri);
@@ -132,7 +132,7 @@ qx.Class.define("qx.tool.compiler.resources.Manager", {
      * for wildcards) and they are allowed to be duplicated.
      *
      * @param uri {String} URI
-     * @return {Library[]} the libraries, empty list if not found
+     * @return {qx.tool.compiler.app.Library[]} the libraries, empty list if not found
      */
     findLibrariesForResource(uri) {
       const findLibrariesForResourceImpl = () => {

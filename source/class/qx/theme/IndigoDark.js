@@ -20,7 +20,7 @@ qx.Theme.define("qx.theme.IndigoDark", {
 
   meta: {
     color: qx.theme.indigo.ColorDark,
-    decoration: qx.theme.indigo.Decoration,
+    decoration: qx.theme.indigo.DecorationDark,
     font: qx.theme.indigo.Font,
     appearance: qx.theme.indigo.AppearanceDark,
     icon: qx.theme.icon.Tango

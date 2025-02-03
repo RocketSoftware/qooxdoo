@@ -156,7 +156,7 @@ qx.Bootstrap.define("qx.Class", {
      *       <tr><th>defer</th><td>Function</td><td>Function that is called at the end of processing the class declaration. It allows access to the declared statics, members and properties.</td></tr>
      *       <tr><th>destruct</th><td>Function</td><td>The destructor of the class.</td></tr>
      *     </table>
-     * @return {Class} The defined class
+     * @return {new (...args: any) => any} The defined class
      */
     define(name, config) {
       try {
@@ -248,6 +248,11 @@ qx.Bootstrap.define("qx.Class", {
         // Process events
         if (config.events) {
           this.__addEvents(clazz, config.events, true);
+        }
+
+        //Process cached objects
+        if (config.objects) {
+          this.__addObjects(clazz, config.objects);
         }
 
         // Include mixins
@@ -773,7 +778,8 @@ qx.Bootstrap.define("qx.Class", {
         environment: "object", // Map
         events: "object", // Map
         defer: "function", // Function
-        destruct: "function" // Function
+        destruct: "function", // Function
+        objects: "object" // Map
       },
 
       default: null
@@ -834,7 +840,7 @@ qx.Bootstrap.define("qx.Class", {
             ? this.__staticAllowedKeys
             : this.__allowedKeys;
         for (var key in config) {
-          if (!allowed[key]) {
+          if (!(key in allowed)) {
             throw new Error(
               'The configuration key "' +
                 key +
@@ -1281,6 +1287,37 @@ qx.Bootstrap.define("qx.Class", {
       }
     },
 
+    __addObjects(clazz, objects) {
+      function validateCachedObject(key, value) {
+        if (typeof value !== "function") {
+          throw new Error(
+            "Invalid cached object definition for " +
+              key +
+              " in " +
+              clazz.classname
+          );
+        }
+
+        if (typeof key != "string") {
+          throw new Error(
+            "Invalid cached object key for " + key + " in " + clazz.classname
+          );
+        }
+      }
+
+      if (!(objects instanceof Object)) {
+        throw new Error("Invalid objects definition for " + clazz.classname);
+      }
+
+      if (qx.core.Environment.get("qx.debug")) {
+        for (const key in objects) {
+          validateCachedObject(key, objects[key]);
+        }
+      }
+
+      clazz.$$objects = objects;
+    },
+
     /**
      * Attach properties to classes
      *
@@ -1585,7 +1622,11 @@ qx.Bootstrap.define("qx.Class", {
               );
             }
 
-            if (patch !== true && proto.hasOwnProperty(key)) {
+            if (
+              patch !== true &&
+              proto.hasOwnProperty(key) &&
+              key != "_createQxObjectImpl"
+            ) {
               throw new Error(
                 'Overwriting member "' +
                   key +

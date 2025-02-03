@@ -87,9 +87,11 @@ qx.Class.define("qx.ui.window.Window", {
     // Automatically add to application root.
     qx.core.Init.getApplication().getRoot().add(this);
 
-    // Initialize visibility
+    // Initialize properties
     this.initVisibility();
-
+    this.initActive();
+    this.initModal();
+    
     // Register as root for the focus handler
     qx.ui.core.FocusHandler.getInstance().addRoot(this);
 
@@ -639,15 +641,16 @@ qx.Class.define("qx.ui.window.Window", {
         return;
       }
 
-      if (
-        this.fireNonBubblingEvent("beforeClose", qx.event.type.Event, [
-          false,
-          true
-        ])
-      ) {
-        this.hide();
-        this.fireEvent("close");
+      if (! this.fireNonBubblingEvent(
+              "beforeClose",
+              qx.event.type.Event,
+              [ false, true ])) {
+        // preventDefault() was called
+        return;
       }
+
+      this.hide();
+      this.fireEvent("close");
 
       // If automatically destroying the window upon close was requested, do
       // so now. (Note that we explicitly re-obtain the autoDestroy property
@@ -870,19 +873,19 @@ qx.Class.define("qx.ui.window.Window", {
 
     // property apply
     _applyActive(value, old) {
-      if (old) {
-        this.removeState("active");
-      } else {
+      if (value) {
         this.addState("active");
+      } else {
+        this.removeState("active");
       }
     },
 
     // property apply
     _applyModal(value, old) {
-      if (old) {
-        this.removeState("modal");
-      } else {
+      if (value) {
         this.addState("modal");
+      } else {
+        this.removeState("modal");
       }
 
       // ARIA attrs

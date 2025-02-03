@@ -685,7 +685,7 @@ qx.Class.define("qx.tool.compiler.app.Application", {
 
     /**
      * Returns a list of all of the assets required by all classes
-     * @param target {Target} the current target
+     * @param target {qx.tool.compiler.targets.Target} the current target
      * @param resManager  {qx.tool.compiler.resources.Manager} the resource manager
      * @param environment {Map} environment
      */
@@ -831,6 +831,25 @@ qx.Class.define("qx.tool.compiler.app.Application", {
       }
 
       return assets;
+    },
+
+    /**
+     * Returns a list of fonts required by the application, where the font is detailed in Manifest.json
+     * in `provides.fonts`
+     *
+     * @returns {String[]}
+     */
+    getFonts() {
+      var fonts = {};
+      var analyser = this.getAnalyser();
+      var db = analyser.getDatabase();
+      this.__loadDeps.forEach(classname => {
+        var classInfo = db.classInfo[classname];
+        if (classInfo.fonts) {
+          classInfo.fonts.forEach(fontName => (fonts[fontName] = true));
+        }
+      });
+      return Object.keys(fonts);
     },
 
     /**

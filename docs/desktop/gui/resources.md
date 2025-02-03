@@ -30,12 +30,15 @@ you will shadow the file of the same resource id in the framework.
 
 ## Declaring resources in the code
 
-You have to declare the resources you wish to use in your application code in an
-`@asset` compiler hint near the top of your source file.
+You have to declare the resources you wish to use in your application code in a jsdoc
+`@asset` compiler hint near the top of your source file. Note that the comment
+must start with a slash and two stars (`/**`) or the jsdoc parser will ignore it 
+– neither `/*` nor `/***` will work! This problem can be hard to find, since all assets
+declared in such an inactive comment will simply be ignored
+there won't be a warning or anything.
 
 ```javascript
 /**
- *
  * @asset(myapp/icons/16/folder-open.png)
  */
 ```
@@ -49,7 +52,6 @@ use simple (shell) wildcards to specify a whole set of resources:
 
 ```javascript
 /**
- *
  * @asset(myapp/icons/16/*)
  */
 ```
@@ -73,7 +75,7 @@ let button = new qx.ui.form.Button(
 
 ## Using Qooxdoo icons with widgets
 
-If you want to use some of the icons as resources that are part of the icon
+If you want to use some icons as resources that are part of the icon
 themes that come with Qooxdoo, there are the following ways to do so:
 
 1.  Use the explicit resource ID of the icons from the qx namespace. The icons
@@ -116,7 +118,7 @@ let button3 = new qx.ui.form.Button(
 current icon theme).
 
 When you use the asset macro variant the used theme and the used icon theme need
-to be in sync. The default icon set for most themes is _ Tango_, but if you want
+to be in sync. The default icon set for most themes is _Tango_, but if you want
 to use the _Classic_ theme make sure that icons from the _Oxygen_ icon theme are
 used.
 
