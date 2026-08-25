@@ -204,6 +204,9 @@ qx.Class.define("qx.event.handler.Focus", {
     // interface implementation
     unregisterEvent(target, type, capture) {
       // Nothing needs to be done here
+      this.__previousActive = null; //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+      this.__previousFocus = null;  //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+      this.__relatedTarget = null;  //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
     },
 
     /*
@@ -608,16 +611,20 @@ qx.Class.define("qx.event.handler.Focus", {
           );
 
           // Register events
+          // https://jira.rocketsoftware.com/browse/LS-10570 - [#LS-10570] Cannot open combo box when start client on iPad, android tablet
+          // attached listeners to touch events instead of mouse events for ios
+          const isIos = (qx.core.Environment.get("os.name") === "ios");
+
           qx.bom.Event.addNativeListener(
             this._document,
-            "mousedown",
+            isIos ? "touchstart" : "mousedown",
             this.__onNativeMouseDownWrapper,
             true
           );
 
           qx.bom.Event.addNativeListener(
             this._document,
-            "mouseup",
+            isIos ? "touchend" : "mouseup",
             this.__onNativeMouseUpWrapper,
             true
           );
@@ -817,16 +824,19 @@ qx.Class.define("qx.event.handler.Focus", {
         },
 
         default() {
+          // https://jira.rocketsoftware.com/browse/LS-10570 - [#LS-10570] Cannot open combo box when start client on iPad, android tablet
+          const isIos = (qx.core.Environment.get("os.name") === "ios");
+
           qx.bom.Event.removeNativeListener(
             this._document,
-            "mousedown",
+            isIos ? "touchstart" : "mousedown",
             this.__onNativeMouseDownWrapper,
             true
           );
 
           qx.bom.Event.removeNativeListener(
             this._document,
-            "mouseup",
+            isIos ? "touchend" : "mouseup",
             this.__onNativeMouseUpWrapper,
             true
           );
@@ -1043,9 +1053,15 @@ qx.Class.define("qx.event.handler.Focus", {
             }
           },
 
-          default(domEvent) {
-            var target = qx.bom.Event.getTarget(domEvent);
-
+          default(domEvent) { // LS-16050 don't reset focus when it goes from child text field control
+                              // todo check if it is still needed
+            var target = qx.bom.Event.getTarget(domEvent),
+              relatedTarget = qx.bom.Event.getRelatedTarget(domEvent),
+              widget = qx.ui.core.Widget.getWidgetByElement(target),
+              textField = widget && widget.getChildControl && widget.getChildControl("textfield", true);
+            if (textField && (relatedTarget === textField.getContentElement().getDomElement())) {
+              return;
+            }
             if (target === this.getFocus()) {
               this.resetFocus();
             }
@@ -1070,6 +1086,14 @@ qx.Class.define("qx.event.handler.Focus", {
             this.resetFocus();
             this.resetActive();
           } else {
+          // LS-16050 don't reset focus when it goes from child text field control
+          // todo check if it is still needed
+          var relatedTarget = qx.bom.Event.getRelatedTarget(domEvent),
+              widget = qx.ui.core.Widget.getWidgetByElement(target),
+              textField = widget && widget.getChildControl && widget.getChildControl("textfield", true);
+          if (textField && (relatedTarget === textField.getContentElement().getDomElement())) {
+            return;
+          }
             if (target === this.getFocus()) {
               this.resetFocus();
             }
@@ -1515,7 +1539,8 @@ qx.Class.define("qx.event.handler.Focus", {
       }
       // correct scroll position for iOS 7 to 14 [ISSUE #9393 and #10565]
       if (this.__needsScrollFix) {
-        window.scrollTo(0, 0);
+        // LS-16050 don't reset focus when it goes from child text field control
+        //window.scrollTo(0, 0);
       }
     },
 

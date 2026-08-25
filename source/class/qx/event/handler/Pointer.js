@@ -85,6 +85,8 @@ qx.Class.define("qx.event.handler.Pointer", {
     // interface implementation
     unregisterEvent(target, type, capture) {
       // Nothing needs to be done here
+      //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+      this.cleanupOnUnregister();
     },
 
     // overridden
@@ -114,13 +116,18 @@ qx.Class.define("qx.event.handler.Pointer", {
       }
 
       // respect anonymous elements
-      while (
-        target &&
-        target.getAttribute &&
-        target.getAttribute("qxanonymous")
-      ) {
-        target = target.parentNode;
-      }
+      while (target) { // LS-37344 Start
+        if (target.getAttribute && target.getAttribute("qxanonymous")) {
+          target = target.parentNode;
+        }
+        else if (target.parentElement && target.parentElement.getAttribute &&
+                 target.parentElement.getAttribute("qxanonymous")) {
+          target = target.parentElement.parentNode;
+        }
+        else {
+          break;
+        }
+      } // LS-37344 End
 
       if (!type) {
         type = domEvent.type;

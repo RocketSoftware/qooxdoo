@@ -317,7 +317,9 @@ qx.Class.define("qx.theme.manager.Font", {
 
     // apply method
     _applyTheme(value) {
-      let createdFonts = (this._dynamic = {});
+	  // LS-36479 Start - Previous used fonts should not be deleted when not used in new theme.
+      let createdFonts = this._dynamic;
+      // LS-36479 End
 
       for (let key in createdFonts) {
         if (createdFonts[key].themed) {

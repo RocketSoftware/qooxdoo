@@ -111,6 +111,7 @@ qx.Class.define("qx.bom.Shortcut", {
   members: {
     __modifier: "",
     __key: "",
+    __isExecutableDelegate : null, //LS-20891-some-shifted-characters-no-longer-process-after-a-specific-webpage
 
     /*
     ---------------------------------------------------------------------------
@@ -133,7 +134,7 @@ qx.Class.define("qx.bom.Shortcut", {
      * @param event {qx.event.type.KeySequence} The key event object
      */
     __onKeyDown(event) {
-      if (this.getEnabled() && this.__matchesKeyEvent(event)) {
+      if (this.getEnabled() && this.__matchesKeyEvent(event) && this.isExecutable()) { //LS-20891-some-shifted-characters-no-longer-process-after-a-specific-webpage
         if (!this.isAutoRepeat()) {
           this.execute(event.getTarget());
         }
@@ -147,12 +148,40 @@ qx.Class.define("qx.bom.Shortcut", {
      * @param event {qx.event.type.KeySequence} The key event object
      */
     __onKeyPress(event) {
-      if (this.getEnabled() && this.__matchesKeyEvent(event)) {
+      if (this.getEnabled() && this.__matchesKeyEvent(event) && this.isExecutable()) { //LS-20891-some-shifted-characters-no-longer-process-after-a-specific-webpage
         if (this.isAutoRepeat()) {
           this.execute(event.getTarget());
         }
         event.stop();
       }
+    },
+
+
+    /**
+     * Sets a delegate method to be called when isExecutable() is called.
+     *
+     * @param delegate {Function} The function to set
+     */
+    //LS-20891-some-shifted-characters-no-longer-process-after-a-specific-webpage 
+    setIsExecutableDelegate : function(delegate) {
+      if (delegate && qx.lang.Type.isFunction(delegate)) {
+        this.__isExecutableDelegate = delegate;
+      } else {
+        this.__isExecutableDelegate = null;
+      }
+    },
+
+    /**
+     * This method is called before the shortcut is executed. When a delegate is set this
+     * delegate is called to verify if the shortcut should have been active at the time of calling.
+     * This allows to define more fine grained if the shortcut can be executed or not.
+     */
+    //LS-20891-some-shifted-characters-no-longer-process-after-a-specific-webpage 
+    isExecutable: function() {
+      if (this.__isExecutableDelegate) {
+        return this.__isExecutableDelegate();
+      }
+      return true;
     },
 
     /*
@@ -413,6 +442,6 @@ qx.Class.define("qx.bom.Shortcut", {
     // this will remove the event listener
     this.setEnabled(false);
 
-    this.__modifier = this.__key = null;
+    this.__modifier = this.__key = this.__isExecutableDelegate = null; //LS-20891-some-shifted-characters-no-longer-process-after-a-specific-webpage
   }
 });

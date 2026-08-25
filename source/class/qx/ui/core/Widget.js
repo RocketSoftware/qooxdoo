@@ -831,8 +831,8 @@ qx.Class.define("qx.ui.core.Widget", {
       return false;
     },
 
-    /** @type {Map} Contains all pooled separators for reuse */
-    __separatorPool: new qx.util.ObjectPool()
+    //https://jira.rocketsoftware.com/browse/LS-18196 - [#LS-18196] JavaScript heap is increasing and causing client performance issues over time [LS82_RELEASE]
+    //removed separator pool
   },
 
   /*
@@ -957,11 +957,11 @@ qx.Class.define("qx.ui.core.Widget", {
           var innerWidth = width - inset.left - inset.right;
           var innerHeight = height - inset.top - inset.bottom;
 
-          var decorator = this.getDecorator();
-          var decoratorPadding = { left: 0, right: 0, top: 0, bottom: 0 };
+          // var decorator = this.getDecorator(); //https://jira.rocketsoftware.com/browse/LWEB-648 - [#LWEB-648] Live theme switching issue
+          var decoratorPadding = {left: 0, right: 0, top: 0, bottom: 0};
+          var decorator = qx.theme.manager.Decoration.getInstance().resolve(this.getDecorator()); //https://jira.rocketsoftware.com/browse/LWEB-648 - [#LWEB-648] Live theme switching issue
           if (decorator) {
-            decorator =
-              qx.theme.manager.Decoration.getInstance().resolve(decorator);
+            // decorator = qx.theme.manager.Decoration.getInstance().resolve(decorator); //https://jira.rocketsoftware.com/browse/LWEB-648 - [#LWEB-648] Live theme switching issue
             decoratorPadding = decorator.getPadding();
           }
 
@@ -1012,14 +1012,16 @@ qx.Class.define("qx.ui.core.Widget", {
         return;
       }
 
-      var pool = qx.ui.core.Widget.__separatorPool;
+    //https://jira.rocketsoftware.com/browse/LS-18196 - [#LS-18196] JavaScript heap is increasing and causing client performance issues over time [LS82_RELEASE]
       var content = this.getContentElement();
       var widget;
 
       for (var i = 0, l = reg.length; i < l; i++) {
         widget = reg[i];
-        pool.poolObject(widget);
+    //https://jira.rocketsoftware.com/browse/LS-18196 - [#LS-18196] JavaScript heap is increasing and causing client performance issues over time [LS82_RELEASE]
         content.remove(widget.getContentElement());
+      //https://jira.rocketsoftware.com/browse/LS-18196 - [#LS-18196] JavaScript heap is increasing and causing client performance issues over time [LS82_RELEASE]
+        widget.dispose();
       }
 
       // Clear registry
@@ -1029,10 +1031,8 @@ qx.Class.define("qx.ui.core.Widget", {
     // overridden
     renderSeparator(separator, bounds) {
       // Insert
-      var widget = qx.ui.core.Widget.__separatorPool.getObject(
-        qx.ui.core.Widget
-      );
-
+      //https://jira.rocketsoftware.com/browse/LS-18196 - [#LS-18196] JavaScript heap is increasing and causing client performance issues over time [LS82_RELEASE]
+      var widget = new qx.ui.core.Widget();
       widget.set({
         decorator: separator
       });
@@ -1276,12 +1276,19 @@ qx.Class.define("qx.ui.core.Widget", {
       var right = this.getPaddingRight();
       var bottom = this.getPaddingBottom();
       var left = this.getPaddingLeft();
-      if (this.getDecorator()) {
+      //https://jira.rocketsoftware.com/browse/LWEB-648 - [#LWEB-648] Live theme switching issue
+      var inset = {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+      };
         var decorator = qx.theme.manager.Decoration.getInstance().resolve(
           this.getDecorator()
         );
+      if (decorator) { //https://jira.rocketsoftware.com/browse/LWEB-648 - [#LWEB-648] Live theme switching issue
 
-        var inset = decorator.getInsets();
+        inset = decorator.getInsets();
 
         if (qx.core.Environment.get("qx.debug")) {
           this.assertNumber(
@@ -1484,8 +1491,10 @@ qx.Class.define("qx.ui.core.Widget", {
       var el = this._createContentElement();
       el.connectObject(this);
 
-      // make sure to allow all pointer events
-      el.setStyles({ "touch-action": "none", "-ms-touch-action": "none" });
+      //https://www.rocketrack.com/browse/LS-12796 - [#LS-12796] Web UI: Android tabled zoom and pan does not work right in DIS environment
+      //https://jira.rocketsoftware.com/browse/LS-21474 - [#LS-21474] LegaSuite Web does not pinch/zoom well when using iPhone in landscape mode
+      var touchAction = qx.core.Environment.get("os.name") === "ios" ? "manipulation" : "auto";
+      el.setStyles({"touch-action": touchAction, "-ms-touch-action" : touchAction});
 
       if (qx.core.Environment.get("qx.debug")) {
         el.setAttribute("qxClass", this.classname);
@@ -2061,8 +2070,8 @@ qx.Class.define("qx.ui.core.Widget", {
      */
     __updateContentPadding(style, value) {
       var content = this.getContentElement();
-      var decorator = this.getDecorator();
-      decorator = qx.theme.manager.Decoration.getInstance().resolve(decorator);
+      // var decorator = this.getDecorator(); //https://jira.rocketsoftware.com/browse/LWEB-648 - [#LWEB-648] Live theme switching issue
+      var decorator = qx.theme.manager.Decoration.getInstance().resolve(this.getDecorator()); //https://jira.rocketsoftware.com/browse/LWEB-648 - [#LWEB-648] Live theme switching issue
       if (decorator) {
         var direction = qx.Bootstrap.firstLow(style.replace("padding", ""));
         value += decorator.getPadding()[direction] || 0;
@@ -2444,7 +2453,7 @@ qx.Class.define("qx.ui.core.Widget", {
         }
 
         // Check property availability of new data
-        if (qx.core.Environment.get("qx.debug")) {
+        if (qx.core.Environment.get("qx.debug") || qx.core.Environment.get("qx.failOnIncorrectAppearance")) { //LS-31367_Web_client_should_alert_on_appearance_errors_in_browser_console
           for (var prop in newData) {
             if (!this[styler[prop]]) {
               throw new Error(

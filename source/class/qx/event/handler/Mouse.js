@@ -159,6 +159,11 @@ qx.Class.define("qx.event.handler.Mouse", {
         );
       } else if (qx.core.Environment.get("os.name") === "ios") {
         target["on" + type] = undefined;
+        //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+        this.__lastMouseDownTarget = null;
+
+      } else {
+        this.__lastMouseDownTarget = null;
       }
     },
 

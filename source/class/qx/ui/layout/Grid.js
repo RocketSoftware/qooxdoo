@@ -165,6 +165,9 @@ qx.Class.define("qx.ui.layout.Grid", {
     /** @type {Array} cached column widths */
     __colWidths: null,
 
+    // LegaSuite modified
+    // added "left" and "width" as allowed layout properties
+    // https://jira.rocketsoftware.com/browse/LS-14019 - [#LS-14019] [Web Client] Improve DynamicUIGrid alignment between header and fields for container list
     // overridden
     verifyLayoutProperty: qx.core.Environment.select("qx.debug", {
       true(item, name, value) {
@@ -172,7 +175,9 @@ qx.Class.define("qx.ui.layout.Grid", {
           row: 1,
           column: 1,
           rowSpan: 1,
-          colSpan: 1
+          colSpan : 1,
+          left : 1,
+          width : 1
         };
 
         this.assert(
@@ -1415,6 +1420,24 @@ qx.Class.define("qx.ui.layout.Grid", {
       };
 
       return hint;
+    },
+
+    // LegaSuite modified
+    // https://jira.rocketsoftware.com/browse/LS-14019 - [#LS-14019] [Web Client] Improve DynamicUIGrid alignment between header and fields for container list
+    _getMaxRowIndex: function() {
+      return this.__maxRowIndex;
+    },
+
+    _getMaxColIndex: function() {
+      return this.__maxColIndex;
+    },
+
+    _getGrid: function() {
+      return this.__grid;
+    },
+
+    _buildGrid: function() {
+      this.__buildGrid();
     }
   },
 

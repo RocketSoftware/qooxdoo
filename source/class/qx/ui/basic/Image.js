@@ -98,6 +98,20 @@ qx.Class.define("qx.ui.basic.Image", {
     },
 
     /**
+     * Whether the image should be repeated inside the given dimensions
+     * Can be "repeat", "repeat-x", "repeat-y"
+     *
+     * Only applied when scaling is disabled.
+     */
+    //LWEB-183-enable-image-to-be-set-through-theme 
+    repeat: {
+      check : "String",
+      init : "no-repeat",
+      event : "changeRepeat",
+      themeable : true,
+      apply: "_applyRepeat"
+    },
+    /**
      * Whether to preserve the image ratio (ie prevent distortion), and which dimension
      * to prioritise
      */
@@ -351,7 +365,16 @@ qx.Class.define("qx.ui.basic.Image", {
 
     // property apply
     _applyScale(value) {
-      this._styleSource();
+      //LWEB-183-enable-image-to-be-set-through-theme     
+      if(this.getSource()) {
+          this._styleSource();
+      }
+    },
+
+    _applyRepeat: function(value) { //LWEB-183-enable-image-to-be-set-through-theme 
+      if(this.getSource()) {
+        this._styleSource();
+      }
     },
 
     /**
@@ -507,7 +530,7 @@ qx.Class.define("qx.ui.basic.Image", {
         (parseInt(qx.core.Environment.get("engine.version"), 10) < 9 ||
           qx.core.Environment.get("browser.documentmode") < 9)
       ) {
-        var repeat = this.getScale() ? "scale" : "no-repeat";
+        var repeat = this.getScale() ? "scale" : this.getRepeat(); //LWEB-183-enable-image-to-be-set-through-theme 
         element.tagNameHint = qx.bom.element.Decoration.getTagName(
           repeat,
           source
@@ -549,6 +572,9 @@ qx.Class.define("qx.ui.basic.Image", {
         this.__fireLoadEvent();
       } else {
         this.__loadUnmanagedImage(contentEl, source);
+      }
+      if(!this.getScale()) { //LWEB-183-enable-image-to-be-set-through-theme 
+          contentEl.setRepeat(this.getRepeat()); //LS-39764 - Resolve qooxdoo 7.5 compile and runtime warnings
       }
     },
 
@@ -714,7 +740,11 @@ qx.Class.define("qx.ui.basic.Image", {
           }
           var currentEl = this.__getContentElement();
           newEl.tagNameHint = hint;
-          newEl.setAttribute("class", currentEl.getAttribute("class"));
+
+          var currentAttributes = currentEl.getAllAttributes(); //LWEB-183-enable-image-to-be-set-through-theme 
+          for(var attrName in currentAttributes) {
+            newEl.setAttribute(attrName, currentAttributes[attrName]);
+          }
 
           var currentDomEl = currentEl.getDomElement();
           if (currentDomEl && !elementToAdd.getDomElement()) {
@@ -973,7 +1003,7 @@ qx.Class.define("qx.ui.basic.Image", {
             decorator.getStartColor() && decorator.getEndColor();
           var hasBackground = decorator.getBackgroundImage();
           if (hasGradient || hasBackground) {
-            var repeat = this.getScale() ? "scale" : "no-repeat";
+            var repeat = this.getScale() ? "scale" : this.getRepeat(); //LWEB-183-enable-image-to-be-set-through-theme 
 
             // get the style attributes for the given source
             var attr = qx.bom.element.Decoration.getAttributes(source, repeat);
@@ -983,7 +1013,7 @@ qx.Class.define("qx.ui.basic.Image", {
             var combinedStyles = {
               backgroundImage: attr.style.backgroundImage,
               backgroundPosition: attr.style.backgroundPosition || "0 0",
-              backgroundRepeat: attr.style.backgroundRepeat || "no-repeat",
+              backgroundRepeat: (attr.style.backgroundRepeat || this.getRepeat()), //LWEB-183-enable-image-to-be-set-through-theme 
               position: "absolute"
             };
 
@@ -999,10 +1029,9 @@ qx.Class.define("qx.ui.basic.Image", {
               combinedStyles["backgroundRepeat"] += ", no-repeat";
             }
 
-            combinedStyles["backgroundImage"] +=
-              "," +
-              (decoratorStyle["background-image"] ||
-                decoratorStyle["background"]);
+            var decoratorStyleBgImage = (decoratorStyle["background-image"] || decoratorStyle["background"]); //LWEB-183-enable-image-to-be-set-through-theme 
+            el.setDecoratorStyleBackgroundImage(decoratorStyleBgImage);
+            combinedStyles["backgroundImage"] += "," + decoratorStyleBgImage;
 
             // apply combined background images
             el.setStyles(combinedStyles);

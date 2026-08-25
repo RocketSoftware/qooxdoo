@@ -152,6 +152,8 @@ qx.Class.define("qx.event.handler.DragDrop", {
     // interface implementation
     unregisterEvent(target, type, capture) {
       // Nothing needs to be done here
+      this.__dragTarget = null; LS-18169 - JavaScript heap is increasing and causing client performance issues over time
+      this.__dropTarget = null; LS-18169 - JavaScript heap is increasing and causing client performance issues over time
     },
 
     /*

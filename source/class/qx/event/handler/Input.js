@@ -343,6 +343,9 @@ qx.Class.define("qx.event.handler.Input", {
               "keypress",
               this._onKeyPressWrapped
             );
+          //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+          this._onKeyPressWrapped = null;
+  
           }
 
           try {
@@ -380,6 +383,9 @@ qx.Class.define("qx.event.handler.Input", {
               "keypress",
               this._onKeyPressWrapped
             );
+          //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+          this._onKeyPressWrapped = null;
+  
           }
         }
       }
@@ -408,6 +414,9 @@ qx.Class.define("qx.event.handler.Input", {
               "keyup",
               this._inputFixWrapper
             );
+          //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
+          this._inputFixWrapper = null;
+  
           }
         }
       },

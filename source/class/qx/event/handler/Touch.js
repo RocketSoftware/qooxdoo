@@ -120,7 +120,9 @@ qx.Class.define("qx.event.handler.Touch", {
 
     // interface implementation
     unregisterEvent(target, type, capture) {
+      //https://jira.rocketsoftware.com/browse/LS-18169 - [#LS-18169] JavaScript heap is increasing and causing client performance issues over time
       // Nothing needs to be done here
+      this.cleanupOnUnregister();
     },
 
     /*

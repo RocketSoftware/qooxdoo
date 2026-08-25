@@ -202,6 +202,14 @@ qx.Class.define("qx.ui.form.Spinner", {
       nullable: true
     },
 
+    //https://jira.rocketsoftware.com/browse/LWEB-929 - [#LWEB-929] Cannot backspace last digit on date picker with forward/backward option
+    /** The value to use when a non-number (empty string or alpha characters) was entered. */
+    valueForInvalidValue: {
+      check : "this._checkValueForInvalidValue(value)",
+      nullable : true,
+      init : null
+    },
+
     // overridden
     allowShrinkY: {
       refine: true,
@@ -345,6 +353,10 @@ qx.Class.define("qx.ui.form.Spinner", {
       } else {
         this._updateButtons();
       }
+      //https://jira.rocketsoftware.com/browse/LWEB-929 - [#LWEB-929] Cannot backspace last digit on date picker with forward/backward option
+      if (this.getValueForInvalidValue() != null && this.getValueForInvalidValue() < value) {
+        this.setValueForInvalidValue(value);
+      }
     },
 
     /**
@@ -365,6 +377,11 @@ qx.Class.define("qx.ui.form.Spinner", {
         this.setValue(value);
       } else {
         this._updateButtons();
+      }
+
+      //https://jira.rocketsoftware.com/browse/LWEB-929 - [#LWEB-929] Cannot backspace last digit on date picker with forward/backward option
+      if (this.getValueForInvalidValue() != null && this.getValueForInvalidValue() > value) {
+        this.setValueForInvalidValue(value);
       }
     },
 
@@ -396,6 +413,24 @@ qx.Class.define("qx.ui.form.Spinner", {
         value >= this.getMinimum() &&
         value <= this.getMaximum()
       );
+    },
+
+    //https://jira.rocketsoftware.com/browse/LWEB-929 - [#LWEB-929] Cannot backspace last digit on date picker with forward/backward option
+    /**
+     * Check whether the value being applied is allowed. The value can be empty. If not, then it must be a
+     * number between min/max value.
+     *
+     * @param value {var}
+     *   The value to use in case of an invalid value
+     * @return {Boolean}
+     *   <i>true</i> if the value is allowed;
+     *   <i>false> otherwise.
+     */
+    _checkValueForInvalidValue : function(value) {
+      if(value !== null) {
+        return this._checkValue(value);
+      }
+      return true;
     },
 
     /**
@@ -658,13 +693,15 @@ qx.Class.define("qx.ui.form.Spinner", {
      */
     _onTextChange(e) {
       var textField = this.getChildControl("textfield");
-      var value;
+      //https://jira.rocketsoftware.com/browse/LWEB-402 - [#LWEB-402] Web client: Datepicker with fwd/bwd option does not allow to type -1 directly
+      var value, textFieldValue = textField.getValue();
 
       // if a number format is set
       if (this.getNumberFormat()) {
         // try to parse the current number using the number format
         try {
-          value = this.getNumberFormat().parse(textField.getValue());
+          //https://jira.rocketsoftware.com/browse/LWEB-402 - [#LWEB-402] Web client: Datepicker with fwd/bwd option does not allow to type -1 directly
+          value = this.getNumberFormat().parse(textFieldValue);
         } catch (ex) {
           // otherwise, process further
         }
@@ -672,7 +709,8 @@ qx.Class.define("qx.ui.form.Spinner", {
 
       if (value === undefined) {
         // try to parse the number as a float
-        value = parseFloat(textField.getValue());
+        //https://jira.rocketsoftware.com/browse/LWEB-402 - [#LWEB-402] Web client: Datepicker with fwd/bwd option does not allow to type -1 directly
+        value = parseFloat(textFieldValue);
       }
 
       // if the result is a number
@@ -686,13 +724,23 @@ qx.Class.define("qx.ui.form.Spinner", {
 
         // If value is the same than before, call directly _applyValue()
         if (value === this.__lastValidValue) {
+          //https://jira.rocketsoftware.com/browse/LWEB-402 - [#LWEB-402] Web client: Datepicker with fwd/bwd option does not allow to type -1 directly
+          if(textFieldValue !== "-0" || !e) {
           this._applyValue(this.__lastValidValue);
+          }
         } else {
           this.setValue(value);
         }
       } else {
         // otherwise, reset the last valid value
-        this._applyValue(this.__lastValidValue, undefined);
+        //https://jira.rocketsoftware.com/browse/LWEB-402 - [#LWEB-402] Web client: Datepicker with fwd/bwd option does not allow to type -1 directly
+        if(textFieldValue !== "-" || !e) {
+          var valForInvalidValue = this.getValueForInvalidValue();
+          if(valForInvalidValue !== null) {
+            this.setValue(valForInvalidValue);  // Will also trigger a 'change' event
+          }
+          this._applyValue(this.__lastValidValue, undefined);
+        }
       }
     },
 

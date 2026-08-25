@@ -104,10 +104,15 @@ qx.Class.define("qx.ui.form.AbstractField", {
         qx.ui.style.Stylesheet.getInstance().removeRule(selector);
       }
       qx.ui.style.Stylesheet.getInstance().addRule(
-        selector,
-        "color: " + color + " !important"
+          selector,
+          "color: " + color + " !important"
       );
-    }
+    },
+    // https://jira.rocketsoftware.com/browse/LS-16979 - [#LS-16979] Web client: Using field uppercase repositions the cursor incorrectly
+    "NONE": 0,
+    "UPPERCASE": 1,
+    "LOWERCASE": 2,
+    "START_CASE": 3
   },
 
   /*
@@ -270,7 +275,15 @@ qx.Class.define("qx.ui.form.AbstractField", {
       check: "RegExp",
       nullable: true,
       init: null
+    },
+    // LS-16979 Start - Using field uppercase repositions the cursor incorrectly
+
+    "casing": {
+      check: "Integer",
+      nullable: true,
+      init: 0
     }
+	// LS-16979 End
   },
 
   /*
@@ -580,6 +593,8 @@ qx.Class.define("qx.ui.form.AbstractField", {
     _onHtmlInput(e) {
       var value = e.getData();
       var fireEvents = true;
+      // LS-16979 - Using field uppercase repositions the cursor incorrectly
+	  let filteredValue = "";
 
       this.__nullValue = false;
 
@@ -587,36 +602,63 @@ qx.Class.define("qx.ui.form.AbstractField", {
       if (this.__oldInputValue && this.__oldInputValue === value) {
         fireEvents = false;
       }
+      // LS-16979 Start - Using field uppercase repositions the cursor incorrectly
+      const casedValue = this._applyCasingOnInput(value, this.getCasing());
 
       // check for the filter
       if (this.getFilter() != null) {
-        var filteredValue = this._validateInput(value);
-        if (filteredValue != value) {
-          fireEvents = this.__oldInputValue !== filteredValue;
-          value = filteredValue;
-          this.getContentElement().setValue(value);
-        }
+        filteredValue = this._validateInput(casedValue);
+      } else {
+        filteredValue = casedValue;
       }
-      // fire the events, if necessary
-      if (fireEvents) {
-        // store the old input value
-        this.fireDataEvent("input", value, this.__oldInputValue);
-        this.__oldInputValue = value;
+      if (filteredValue != value) {
+        fireEvents = false;
+        const caretPosition = this.getTextSelectionEnd();
+        const symbolsOnTheRight = value.length - caretPosition;
+        value = filteredValue;
+        const newCaretPosition = value.length - symbolsOnTheRight;
+        this.getContentElement().setValue(value);
+        this.setTextSelection(newCaretPosition, newCaretPosition);
+      }
 
-        // check for the live change event
-        if (this.getLiveUpdate()) {
+      // fire the events
+      // store the old input value
+      this.fireDataEvent("input", value, this.__oldInputValue);
+      this.__oldInputValue = value;
+
+      // check for the live change event
+      if (this.getLiveUpdate()) {
           this.__fireChangeValueEvent(value);
-        }
-        // check for the liveUpdateOnRxMatch change event
-        else {
-          var fireRx = this.getLiveUpdateOnRxMatch();
-          if (fireRx && value.match(fireRx)) {
-            this.__fireChangeValueEvent(value);
-          }
-        }
       }
     },
+    // LS-16979 End 
 
+    /**
+     * Applies casing on a value
+     * @returns value after casing or unchanged value
+     */
+    // LS-16979 Start - Using field uppercase repositions the cursor incorrectly
+    _applyCasingOnInput: function(value, casing) {
+      let casedValue = value;
+      switch(casing)
+      {
+        case qx.ui.form.AbstractField.UPPERCASE:
+          casedValue = value.toUpperCase();
+          break;
+        case qx.ui.form.AbstractField.LOWERCASE:
+          casedValue = value.toLowerCase();
+          break;
+        case qx.ui.form.AbstractField.START_CASE:
+          const ar = value.split(" ");
+          casedValue = (ar.map(function(el) {
+            return el ? el[0].toUpperCase() + (el.substring(1, el.length)).toLowerCase() : "";
+          })).join(" ");
+          break;
+      }
+      return casedValue;
+    },
+    // LS-16979 End
+	
     /**
      * Triggers text size recalculation after a web font was loaded
      *
