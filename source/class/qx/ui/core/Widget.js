@@ -830,9 +830,9 @@ qx.Class.define("qx.ui.core.Widget", {
 
       return false;
     },
-
-    /** @type {Map} Contains all pooled separators for reuse */
-    __separatorPool: new qx.util.ObjectPool()
+	
+    /** @type {Map} Contains all pooled separators for reuse */     //MXWEB LS-18196 - JavaScript heap is increasing and causing client performance issues over time [LS82_RELEASE]
+    //MXWEB __separatorPool: new qx.util.ObjectPool()
   },
 
   /*
@@ -957,11 +957,12 @@ qx.Class.define("qx.ui.core.Widget", {
           var innerWidth = width - inset.left - inset.right;
           var innerHeight = height - inset.top - inset.bottom;
 
-          var decorator = this.getDecorator();
-          var decoratorPadding = { left: 0, right: 0, top: 0, bottom: 0 };
+          // var decorator = this.getDecorator(); //MXWEB LWEB-648 - Live theme switching issue
+          var decoratorPadding = {left: 0, right: 0, top: 0, bottom: 0};
+          var decorator = qx.theme.manager.Decoration.getInstance().resolve(this.getDecorator()); //MXWEB LWEB-648 - Live theme switching issue
           if (decorator) {
-            decorator =
-              qx.theme.manager.Decoration.getInstance().resolve(decorator);
+            //MXWEB decorator =
+            //MXWEB  qx.theme.manager.Decoration.getInstance().resolve(decorator);
             decoratorPadding = decorator.getPadding();
           }
 
@@ -1012,14 +1013,15 @@ qx.Class.define("qx.ui.core.Widget", {
         return;
       }
 
-      var pool = qx.ui.core.Widget.__separatorPool;
+    //var pool = qx.ui.core.Widget.__separatorPool; //MXWEB LS-18196 - JavaScript heap is increasing and causing client performance issues over time [LS82_RELEASE]
       var content = this.getContentElement();
       var widget;
 
       for (var i = 0, l = reg.length; i < l; i++) {
         widget = reg[i];
-        pool.poolObject(widget);
+        //pool.poolObject(widget); //MXWEB LS-18196 - JavaScript heap is increasing and causing client performance issues over time [LS82_RELEASE]
         content.remove(widget.getContentElement());
+        widget.dispose(); //MXWEB LS-18196 - JavaScript heap is increasing and causing client performance issues over time [LS82_RELEASE]
       }
 
       // Clear registry
@@ -1029,10 +1031,10 @@ qx.Class.define("qx.ui.core.Widget", {
     // overridden
     renderSeparator(separator, bounds) {
       // Insert
-      var widget = qx.ui.core.Widget.__separatorPool.getObject(
-        qx.ui.core.Widget
-      );
-
+      //MXWEB var widget = qx.ui.core.Widget.__separatorPool.getObject(
+      //MXWEB   qx.ui.core.Widget
+      //MXWEB );
+      var widget = new qx.ui.core.Widget(); //MXWEB LS-18196 - JavaScript heap is increasing and causing client performance issues over time [LS82_RELEASE]
       widget.set({
         decorator: separator
       });
@@ -1276,12 +1278,21 @@ qx.Class.define("qx.ui.core.Widget", {
       var right = this.getPaddingRight();
       var bottom = this.getPaddingBottom();
       var left = this.getPaddingLeft();
-      if (this.getDecorator()) {
+	  //MXWEB Start
+      //LWEB-648 - Live theme switching issue
+      var inset = {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+      };
+	  //MXWEB End
         var decorator = qx.theme.manager.Decoration.getInstance().resolve(
           this.getDecorator()
         );
-
-        var inset = decorator.getInsets();
+      if (decorator) { //MXWEB LWEB-648 - Live theme switching issue
+        //MXWEB var inset = decorator.getInsets();
+        inset = decorator.getInsets(); //MXWEB 
 
         if (qx.core.Environment.get("qx.debug")) {
           this.assertNumber(
@@ -1484,8 +1495,11 @@ qx.Class.define("qx.ui.core.Widget", {
       var el = this._createContentElement();
       el.connectObject(this);
 
-      // make sure to allow all pointer events
-      el.setStyles({ "touch-action": "none", "-ms-touch-action": "none" });
+      //MXWEB LS-12796 - Web UI: Android tabled zoom and pan does not work right in DIS environment
+      //MXWEB LS-21474 - LegaSuite Web does not pinch/zoom well when using iPhone in landscape mode
+      var touchAction = qx.core.Environment.get("os.name") === "ios" ? "manipulation" : "auto"; //MXWEB 
+	  //MXWEB el.setStyles({ "touch-action": "none", "-ms-touch-action": "none" });
+      el.setStyles({"touch-action": touchAction, "-ms-touch-action" : touchAction}); //MXWEB 
 
       if (qx.core.Environment.get("qx.debug")) {
         el.setAttribute("qxClass", this.classname);
@@ -2061,8 +2075,8 @@ qx.Class.define("qx.ui.core.Widget", {
      */
     __updateContentPadding(style, value) {
       var content = this.getContentElement();
-      var decorator = this.getDecorator();
-      decorator = qx.theme.manager.Decoration.getInstance().resolve(decorator);
+      // var decorator = this.getDecorator();
+      var decorator = qx.theme.manager.Decoration.getInstance().resolve(this.getDecorator());  //MXWEB LWEB-648 - Live theme switching issue
       if (decorator) {
         var direction = qx.Bootstrap.firstLow(style.replace("padding", ""));
         value += decorator.getPadding()[direction] || 0;
@@ -2444,7 +2458,8 @@ qx.Class.define("qx.ui.core.Widget", {
         }
 
         // Check property availability of new data
-        if (qx.core.Environment.get("qx.debug")) {
+        //MXWEB if (qx.core.Environment.get("qx.debug")) {
+        if (qx.core.Environment.get("qx.debug") || qx.core.Environment.get("qx.failOnIncorrectAppearance")) { //MXWEB LS-31367 - Web_client_should_alert_on_appearance_errors_in_browser_console
           for (var prop in newData) {
             if (!this[styler[prop]]) {
               throw new Error(

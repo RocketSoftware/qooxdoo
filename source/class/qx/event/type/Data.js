@@ -82,6 +82,13 @@ qx.Class.define("qx.event.type.Data", {
     getData() {
       return this.__data;
     },
+    
+	//MXWEB Start
+    //LS-18169 - JavaScript heap is increasing and causing client performance issues over time JavaScript heap is increasing and causing client performance issues over time
+    cleanupData: function() {
+      this.__data = null;
+    }, 
+	//MXWEB End
 
     /**
      * The old data of the event sending this data event.

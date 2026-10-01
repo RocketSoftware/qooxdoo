@@ -82,24 +82,25 @@ qx.Class.define("qx.ui.root.Application", {
 
     // prevent scrolling on touch devices
     this.addListener("touchmove", this.__stopScrolling, this);
-
-    // handle focus for iOS which seems to deny any focus action
-    if (qx.core.Environment.get("os.name") == "ios") {
-      this.getContentElement().addListener(
-        "tap",
-        function (e) {
-          var widget = qx.ui.core.Widget.getWidgetByElement(e.getTarget());
-          while (widget && !widget.isFocusable()) {
-            widget = widget.getLayoutParent();
-          }
-          if (widget && widget.isFocusable()) {
-            widget.getContentElement().focus();
-          }
-        },
-        this,
-        true
-      );
-    }
+    //MXWEB Start
+    //MXWEB LS-10570 - Cannot open combo box when start client on iPad, android tablet
+    //MXWEB    // handle focus for iOS which seems to deny any focus action
+    //MXWEB    if (qx.core.Environment.get("os.name") == "ios") {
+    //MXWEB      this.getContentElement().addListener(
+    //MXWEB        "tap",
+    //MXWEB        function (e) {
+    //MXWEB          var widget = qx.ui.core.Widget.getWidgetByElement(e.getTarget());
+    //MXWEB          while (widget && !widget.isFocusable()) {
+    //MXWEB            widget = widget.getLayoutParent();
+    //MXWEB          }
+    //MXWEB          if (widget && widget.isFocusable()) {
+    //MXWEB            widget.getContentElement().focus();
+    //MXWEB          }
+    //MXWEB        },
+    //MXWEB        this,
+    //MXWEB        true
+    //MXWEB      );
+    //MXWEB    }
   },
 
   /*

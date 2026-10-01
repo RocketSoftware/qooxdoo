@@ -165,6 +165,8 @@ qx.Class.define("qx.ui.layout.Grid", {
     /** @type {Array} cached column widths */
     __colWidths: null,
 
+    //MXWEB LS-14019 - Improve DynamicUIGrid alignment between header and fields for container list
+    //MXWEB  added "left" and "width" as allowed layout properties
     // overridden
     verifyLayoutProperty: qx.core.Environment.select("qx.debug", {
       true(item, name, value) {
@@ -172,7 +174,9 @@ qx.Class.define("qx.ui.layout.Grid", {
           row: 1,
           column: 1,
           rowSpan: 1,
-          colSpan: 1
+          colSpan : 1 
+          ,left : 1 //MXWEB 
+          ,width : 1 //MXWEB 
         };
 
         this.assert(
@@ -1415,7 +1419,25 @@ qx.Class.define("qx.ui.layout.Grid", {
       };
 
       return hint;
+    },
+    //MXWEB Start
+    //MXWEB LS-14019 - Improve DynamicUIGrid alignment between header and fields for container list
+    _getMaxRowIndex: function() {
+      return this.__maxRowIndex;
+    },
+
+    _getMaxColIndex: function() {
+      return this.__maxColIndex;
+    },
+
+    _getGrid: function() {
+      return this.__grid;
+    },
+
+    _buildGrid: function() {
+      this.__buildGrid();
     }
+	//MXWEB End
   },
 
   /*

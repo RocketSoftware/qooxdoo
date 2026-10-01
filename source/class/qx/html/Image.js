@@ -39,6 +39,7 @@ qx.Class.define("qx.html.Image", {
     );
 
     this.registerProperty("scale", null, this._setScaleProperty);
+    this.registerProperty("repeat", null, this._setRepeatProperty); //MXWEB LS-39764 - Resolve qooxdoo 7.5 compile and runtime warnings
   },
 
   /*
@@ -50,6 +51,7 @@ qx.Class.define("qx.html.Image", {
   members: {
     __paddingTop: null,
     __paddingLeft: null,
+    __decoratorStyleBackgroundImage: null, //MXWEB LWEB-183 - enable-image-to-be-set-through-theme
 
     // this member variable is only used for IE browsers to be able
     // to the tag name which will be set. This is heavily connected to the runtime
@@ -76,6 +78,13 @@ qx.Class.define("qx.html.Image", {
         );
       }
     },
+    
+    //MXWEB Start
+	//LWEB-183 - enable-image-to-be-set-through-theme
+    setDecoratorStyleBackgroundImage: function(decoratorStyleBgImage) {
+      this.__decoratorStyleBackgroundImage = decoratorStyleBgImage;
+    },
+	//MXWEB End
 
     /*
     ---------------------------------------------------------------------------
@@ -103,7 +112,8 @@ qx.Class.define("qx.html.Image", {
 
       var source = this._getProperty("source");
       var scale = this._getProperty("scale");
-      var repeat = scale ? "scale" : "no-repeat";
+      //MXWEB var repeat = scale ? "scale" : "no-repeat";
+      var repeat = scale ? "scale" : this.getRepeat() || "no-repeat"; //MXWEB LWEB-183 - enable-image-to-be-set-through-theme //MXWEB LS-39764 - Resolve qooxdoo 7.5 compile and runtime warnings
 
       // Source can be null in certain circumstances.
       // See bug #3701 for details.
@@ -115,6 +125,14 @@ qx.Class.define("qx.html.Image", {
         styles.paddingLeft = this.__paddingLeft;
 
         qx.bom.element.Decoration.update(elem, source, repeat, styles);
+        //MXWEB Start
+		//LWEB-183 - enable-image-to-be-set-through-theme
+        if(this.__decoratorStyleBackgroundImage) {
+          this.__styleValues["backgroundImage"] += "," + this.__decoratorStyleBackgroundImage;
+          //need to call setStyles
+          qx.bom.element.Style.setStyles(elem, {"backgroundImage": this.__styleValues["backgroundImage"]});
+        }
+		//MXWEB End
       }
     },
 
@@ -137,7 +155,8 @@ qx.Class.define("qx.html.Image", {
     // overridden
     _createDomElement() {
       var scale = this._getProperty("scale");
-      var repeat = scale ? "scale" : "no-repeat";
+      //MXWEB var repeat = scale ? "scale" : "no-repeat";
+      var repeat = scale ? "scale" : this.getRepeat() || "no-repeat"; //MXWEB LWEB-183 - enable-image-to-be-set-through-theme //MXWEB LS-39764 - Resolve qooxdoo 7.5 compile and runtime warnings
 
       if (qx.core.Environment.get("engine.name") == "mshtml") {
         var source = this._getProperty("source");
@@ -223,5 +242,19 @@ qx.Class.define("qx.html.Image", {
     getScale() {
       return this._getProperty("scale");
     }
+	//MXWEB Start
+	//LS-39764 - Resolve qooxdoo 7.5 compile and runtime warnings
+    ,setRepeat(value) { 
+      this._setProperty("repeat", value);
+      return this;
+    },
+	
+    getRepeat() {
+      return this._getProperty("repeat");
+    },
+	
+    _setRepeatProperty(value) {
+    }
+    //MXWEB End
   }
 });

@@ -343,6 +343,9 @@ qx.Class.define("qx.event.handler.Input", {
               "keypress",
               this._onKeyPressWrapped
             );
+          //MXWEB LS-18169 - JavaScript heap is increasing and causing client performance issues over time JavaScript heap is increasing and causing client performance issues over time
+          this._onKeyPressWrapped = null; //MXWEB
+  
           }
 
           try {
@@ -380,6 +383,9 @@ qx.Class.define("qx.event.handler.Input", {
               "keypress",
               this._onKeyPressWrapped
             );
+          //MXWEB LS-18169 - JavaScript heap is increasing and causing client performance issues over time JavaScript heap is increasing and causing client performance issues over time
+          this._onKeyPressWrapped = null; //MXWEB
+  
           }
         }
       }
@@ -408,6 +414,9 @@ qx.Class.define("qx.event.handler.Input", {
               "keyup",
               this._inputFixWrapper
             );
+          //MXWEB LS-18169 - JavaScript heap is increasing and causing client performance issues over time JavaScript heap is increasing and causing client performance issues over time
+          this._inputFixWrapper = null; //MXWEB
+  
           }
         }
       },

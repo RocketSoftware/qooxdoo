@@ -121,6 +121,7 @@ qx.Class.define("qx.event.handler.Touch", {
     // interface implementation
     unregisterEvent(target, type, capture) {
       // Nothing needs to be done here
+      this.cleanupOnUnregister(); //MXWEB LS-18169 - JavaScript heap is increasing and causing client performance issues over time JavaScript heap is increasing and causing client performance issues over time
     },
 
     /*

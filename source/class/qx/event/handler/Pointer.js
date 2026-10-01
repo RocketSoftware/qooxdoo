@@ -85,6 +85,8 @@ qx.Class.define("qx.event.handler.Pointer", {
     // interface implementation
     unregisterEvent(target, type, capture) {
       // Nothing needs to be done here
+      //MXWEB LS-18169 - JavaScript heap is increasing and causing client performance issues over time JavaScript heap is increasing and causing client performance issues over time
+      this.cleanupOnUnregister(); //MXWEB
     },
 
     // overridden
@@ -114,13 +116,28 @@ qx.Class.define("qx.event.handler.Pointer", {
       }
 
       // respect anonymous elements
-      while (
-        target &&
-        target.getAttribute &&
-        target.getAttribute("qxanonymous")
-      ) {
-        target = target.parentNode;
-      }
+	  //MXWEB Start
+	  //LS-37344 
+      // while (
+      // target &&
+      // target.getAttribute &&
+      // target.getAttribute("qxanonymous")
+      // ) {
+      //   target = target.parentNode;
+      // }	  
+      while (target) {
+        if (target.getAttribute && target.getAttribute("qxanonymous")) {
+          target = target.parentNode;
+        }
+        else if (target.parentElement && target.parentElement.getAttribute &&
+                 target.parentElement.getAttribute("qxanonymous")) {
+          target = target.parentElement.parentNode;
+        }
+        else {
+          break;
+        }
+      } 
+	  //MXWEB End
 
       if (!type) {
         type = domEvent.type;

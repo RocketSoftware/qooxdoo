@@ -204,6 +204,9 @@ qx.Class.define("qx.event.handler.Focus", {
     // interface implementation
     unregisterEvent(target, type, capture) {
       // Nothing needs to be done here
+      this.__previousActive = null; //MXWEB LS-18169 - JavaScript heap is increasing and causing client performance issues over time JavaScript heap is increasing and causing client performance issues over time
+      this.__previousFocus = null;  //MXWEB
+      this.__relatedTarget = null;  //MXWEB
     },
 
     /*
@@ -608,16 +611,22 @@ qx.Class.define("qx.event.handler.Focus", {
           );
 
           // Register events
+          //MXWEB LS-10570 - Cannot open combo box when start client on iPad, android tablet
+          //MXWEB attached listeners to touch events instead of mouse events for ios
+          var isIos = (qx.core.Environment.get("os.name") === "ios"); //MXWEB 
+
           qx.bom.Event.addNativeListener(
             this._document,
-            "mousedown",
+            //MXWEB "mousedown",
+            isIos ? "touchstart" : "mousedown", //MXWEB 
             this.__onNativeMouseDownWrapper,
             true
           );
 
           qx.bom.Event.addNativeListener(
             this._document,
-            "mouseup",
+            //MXWEB "mouseup",
+            isIos ? "touchend" : "mouseup", //MXWEB 
             this.__onNativeMouseUpWrapper,
             true
           );
@@ -817,16 +826,21 @@ qx.Class.define("qx.event.handler.Focus", {
         },
 
         default() {
+          //MXWEB LS-10570 - Cannot open combo box when start client on iPad, android tablet
+          var isIos = (qx.core.Environment.get("os.name") === "ios"); //MXWEB  
+
           qx.bom.Event.removeNativeListener(
             this._document,
-            "mousedown",
+            //MXWEB "mousedown",			
+            isIos ? "touchstart" : "mousedown", //MXWEB 
             this.__onNativeMouseDownWrapper,
             true
           );
 
           qx.bom.Event.removeNativeListener(
             this._document,
-            "mouseup",
+            //MXWEB "mouseup",			
+            isIos ? "touchend" : "mouseup", //MXWEB 
             this.__onNativeMouseUpWrapper,
             true
           );
@@ -1043,9 +1057,19 @@ qx.Class.define("qx.event.handler.Focus", {
             }
           },
 
-          default(domEvent) {
+          default(domEvent) { 
+                              
             var target = qx.bom.Event.getTarget(domEvent);
-
+            //MXWEB Start	
+			//LS-16050 - don't reset focus when it goes from child text field control						  
+			//todo check if it is still needed
+            let relatedTarget = qx.bom.Event.getRelatedTarget(domEvent),
+              widget = qx.ui.core.Widget.getWidgetByElement(target),
+              textField = widget && widget.getChildControl && widget.getChildControl("textfield", true);
+            if (textField && (relatedTarget === textField.getContentElement().getDomElement())) {
+              return;
+            }
+			//MXWEB End 
             if (target === this.getFocus()) {
               this.resetFocus();
             }
@@ -1070,6 +1094,16 @@ qx.Class.define("qx.event.handler.Focus", {
             this.resetFocus();
             this.resetActive();
           } else {
+		  //MXWEB Start
+          //LS-16050 - don't reset focus when it goes from child text field control
+          //todo check if it is still needed
+          var relatedTarget = qx.bom.Event.getRelatedTarget(domEvent),
+              widget = qx.ui.core.Widget.getWidgetByElement(target),
+              textField = widget && widget.getChildControl && widget.getChildControl("textfield", true);
+          if (textField && (relatedTarget === textField.getContentElement().getDomElement())) {
+            return;
+          } 
+		  //MXWEB  End
             if (target === this.getFocus()) {
               this.resetFocus();
             }
@@ -1515,7 +1549,8 @@ qx.Class.define("qx.event.handler.Focus", {
       }
       // correct scroll position for iOS 7 to 14 [ISSUE #9393 and #10565]
       if (this.__needsScrollFix) {
-        window.scrollTo(0, 0);
+        //MXWEB LS-16050 - don't reset focus when it goes from child text field control
+        //MXWEB window.scrollTo(0, 0);
       }
     },
 
