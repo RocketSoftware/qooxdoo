@@ -150,6 +150,18 @@ qx.Class.define("qx.ui.core.scroll.AbstractScrollArea", {
     scrollbar: {
       group: ["scrollbarX", "scrollbarY"]
     }
+	
+    //MXWEB Start
+    /**
+     * When set to true, this scrollable element will turn off browser scrolling handling
+     * when qx scrollbars are visible.
+     * Currently applied to ios only.
+     */
+    //LS-23491 - web-does-not-scroll-well-on-iphone-in-landscape-mode-with-qx-scrollbars
+    ,disableBrowserScroll : {
+      init: false
+    }
+	//MXWEB End
   },
 
   /*
@@ -159,6 +171,11 @@ qx.Class.define("qx.ui.core.scroll.AbstractScrollArea", {
   */
 
   members: {
+    //MXWEB LS-21550-web-does-not-swipe-scroll-pinch-and-zoom-well-on-android-phone
+    __defaultIos: "manipulation", //MXWEB 
+    __defaultAndroid: "auto",     //MXWEB 
+    __pinchZoomOnly: "pinch-zoom", //MXWEB 
+
     /*
     ---------------------------------------------------------------------------
       CHILD CONTROL SUPPORT
@@ -494,6 +511,27 @@ qx.Class.define("qx.ui.core.scroll.AbstractScrollArea", {
       showX && showY
         ? this._showChildControl("corner")
         : this._excludeChildControl("corner");
+
+	  //MXWEB Start
+      //LS-21550 - LegaSuite Web does not swipe-scroll, pinch and zoom well on Android phone
+      if(qx.core.Environment.get("os.name") === "android") {
+        if(showX || showY) {
+          this.getContentElement().setStyles({"touch-action": this.__pinchZoomOnly, "-ms-touch-action" : this.__pinchZoomOnly});
+        } else {
+          this.getContentElement().setStyles({"touch-action": this.__defaultAndroid, "-ms-touch-action" : this.__defaultAndroid});
+        }
+      }
+
+      if(this.getDisableBrowserScroll()) { //MXWEB LS-23491-web-does-not-scroll-well-on-iphone-in-landscape-mode-with-qx-scrollbars
+        if(qx.core.Environment.get("os.name") === "ios") {
+          if(showX || showY) {
+            this.getContentElement().setStyles({"touch-action": this.__pinchZoomOnly, "-ms-touch-action" : this.__pinchZoomOnly});
+          } else {
+            this.getContentElement().setStyles({"touch-action": this.__defaultIos, "-ms-touch-action" : this.__defaultIos});
+          }
+        }
+      }
+	  //MXWEB  End
     },
 
     /**
@@ -505,6 +543,26 @@ qx.Class.define("qx.ui.core.scroll.AbstractScrollArea", {
       var showX = this._isChildControlVisible("scrollbar-x");
       var showY = this._isChildControlVisible("scrollbar-y");
 
+	  //MXWEB Start
+      //LS-21550 - LegaSuite Web does not swipe-scroll, pinch and zoom well on Android phone
+      if(qx.core.Environment.get("os.name") === "android") {
+        if(showX || showY) {
+          this.getContentElement().setStyles({"touch-action": this.__pinchZoomOnly, "-ms-touch-action" : this.__pinchZoomOnly});
+        } else {
+          this.getContentElement().setStyles({"touch-action": this.__defaultAndroid, "-ms-touch-action" : this.__defaultAndroid});
+        }
+      }
+
+      if(this.getDisableBrowserScroll()) { //MXWEB LS-23491-web-does-not-scroll-well-on-iphone-in-landscape-mode-with-qx-scrollbars
+        if(qx.core.Environment.get("os.name") === "ios") {
+          if(showX || showY) {
+            this.getContentElement().setStyles({"touch-action": this.__pinchZoomOnly, "-ms-touch-action" : this.__pinchZoomOnly});
+          } else {
+            this.getContentElement().setStyles({"touch-action": this.__defaultIos, "-ms-touch-action" : this.__defaultIos});
+          }
+        }
+      }
+	  //MXWEB End
       if (!showY) {
         this.scrollToY(0);
       }

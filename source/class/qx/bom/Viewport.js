@@ -112,7 +112,8 @@ qx.Bootstrap.define("qx.bom.Viewport", {
       // [BUG #7785] Document element's clientHeight is calculated wrong on iPad iOS7
       if (
         qx.core.Environment.get("os.name") == "ios" &&
-        window.innerHeight != doc.documentElement.clientHeight
+        //MXWEB window.innerHeight != doc.documentElement.clientHeight
+        qx.core.Environment.get("os.version").substring(0,1) === "7"  //MXWEB LS-21474 - web-does-not-pinch-zoom-well
       ) {
         return window.innerHeight;
       }

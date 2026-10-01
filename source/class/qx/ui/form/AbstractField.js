@@ -35,19 +35,25 @@ qx.Class.define("qx.ui.form.AbstractField", {
   type: "abstract",
 
   statics: {
-    __addedPlaceholderRules: "",
+    /** Stylesheet needed to style the native placeholder element. */
+     //MXWEB __stylesheet: null,
+
+     //MXWEB __addedPlaceholderRules: false,
+    __addedPlaceholderRules: "", //MXWEB
 
     /**
      * Adds the CSS rules needed to style the native placeholder element.
      */
     __addPlaceholderRules() {
-      const theme = qx.theme.manager.Meta.getInstance().getTheme();
-      const currentThemeName = theme ? theme.title || theme.name : "";
+      const theme = qx.theme.manager.Meta.getInstance().getTheme();  //MXWEB
+      const currentThemeName = theme ? theme.title || theme.name : "";  //MXWEB
 
-      if (qx.ui.form.AbstractField.__addedPlaceholderRules === currentThemeName) {
+      //MXWEB if (qx.ui.form.AbstractField.__addedPlaceholderRules) {
+	  if (qx.ui.form.AbstractField.__addedPlaceholderRules === currentThemeName) { //MXWEB
         return;
       }
-      qx.ui.form.AbstractField.__addedPlaceholderRules = currentThemeName;
+      //MXWEB qx.ui.form.AbstractField.__addedPlaceholderRules = true;
+      qx.ui.form.AbstractField.__addedPlaceholderRules = currentThemeName; //MXWEB
       var engine = qx.core.Environment.get("engine.name");
       var browser = qx.core.Environment.get("browser.name");
       var colorManager = qx.theme.manager.Color.getInstance();
@@ -99,15 +105,21 @@ qx.Class.define("qx.ui.form.AbstractField", {
           "-ms-input-placeholder, textarea.qx-placeholder-color",
           "-ms-input-placeholder"
         ].join(separator);
-      }
-      if(qx.ui.style.Stylesheet.getInstance().hasRule(selector)) {
-        qx.ui.style.Stylesheet.getInstance().removeRule(selector);
-      }
+      } //MXWEB
+      if(qx.ui.style.Stylesheet.getInstance().hasRule(selector)) { //MXWEB
+        qx.ui.style.Stylesheet.getInstance().removeRule(selector); //MXWEB
+      } //MXWEB
       qx.ui.style.Stylesheet.getInstance().addRule(
         selector,
         "color: " + color + " !important"
       );
     }
+	//MXWEB Start
+    //LS-16979 - Web client: Using field uppercase repositions the cursor incorrectly
+    ,"NONE": 0,
+    "UPPERCASE": 1,
+    "LOWERCASE": 2,
+    "START_CASE": 3
   },
 
   /*
@@ -271,6 +283,14 @@ qx.Class.define("qx.ui.form.AbstractField", {
       nullable: true,
       init: null
     }
+    //MXWEB Start
+    ,"casing":
+    {
+      check: "Integer",
+      nullable: true,
+      init: 0
+    }
+	//MXWEB End
   },
 
   /*
@@ -579,7 +599,9 @@ qx.Class.define("qx.ui.form.AbstractField", {
      */
     _onHtmlInput(e) {
       var value = e.getData();
+      var casedValue; //MXWEB LS-16979 - Using field uppercase repositions the cursor incorrectly
       var fireEvents = true;
+      var filteredValue = ""; //MXWEB
 
       this.__nullValue = false;
 
@@ -588,34 +610,74 @@ qx.Class.define("qx.ui.form.AbstractField", {
         fireEvents = false;
       }
 
+      casedValue = this._applyCasingOnInput(value, this.getCasing()); //MXWEB
+
       // check for the filter
       if (this.getFilter() != null) {
-        var filteredValue = this._validateInput(value);
-        if (filteredValue != value) {
-          fireEvents = this.__oldInputValue !== filteredValue;
-          value = filteredValue;
-          this.getContentElement().setValue(value);
-        }
+	    //MXWEB var filteredValue = this._validateInput(value);
+        filteredValue = this._validateInput(casedValue);
+      } else { //MXWEB 
+        filteredValue = casedValue; //MXWEB 
+      } //MXWEB 
+      if (filteredValue != value) {
+   	    //MXWEB fireEvents = this.__oldInputValue !== filteredValue;
+        fireEvents = false; //MXWEB 
+        var caretPosition = this.getTextSelectionEnd(); //MXWEB 
+        var newCaretPosition; //MXWEB 
+        var symbolsOnTheRight = value.length - caretPosition; //MXWEB 
+        value = filteredValue;
+        newCaretPosition = value.length - symbolsOnTheRight; //MXWEB 
+        this.getContentElement().setValue(value);
+        this.setTextSelection(newCaretPosition, newCaretPosition); //MXWEB 
       }
+
       // fire the events, if necessary
-      if (fireEvents) {
+      //MXWEB if (fireEvents) {
         // store the old input value
         this.fireDataEvent("input", value, this.__oldInputValue);
         this.__oldInputValue = value;
-
+      
         // check for the live change event
         if (this.getLiveUpdate()) {
           this.__fireChangeValueEvent(value);
         }
-        // check for the liveUpdateOnRxMatch change event
-        else {
-          var fireRx = this.getLiveUpdateOnRxMatch();
-          if (fireRx && value.match(fireRx)) {
-            this.__fireChangeValueEvent(value);
-          }
-        }
-      }
+		
+		// check for the liveUpdateOnRxMatch change event
+		//MXWEB else {
+        //MXWEB   var fireRx = this.getLiveUpdateOnRxMatch();
+        //MXWEB   if (fireRx && value.match(fireRx)) {
+        //MXWEB     this.__fireChangeValueEvent(value);
+        //MXWEB   }
+        //MXWEB }
+	  //MXWEB }
     },
+
+    //MXWEB Start
+    //LS-16979 - Using field uppercase repositions the cursor incorrectly
+    /**
+     * Applies casing on a value
+     * @returns value after casing or unchanged value
+     */
+    _applyCasingOnInput: function(value, casing) {
+      var casedValue = value;
+      switch(casing)
+      {
+        case qx.ui.form.AbstractField.UPPERCASE:
+          casedValue = value.toUpperCase();
+          break;
+        case qx.ui.form.AbstractField.LOWERCASE:
+          casedValue = value.toLowerCase();
+          break;
+        case qx.ui.form.AbstractField.START_CASE:
+          var ar = value.split(" ");
+          casedValue = (ar.map(function(el) {
+            return el ? el[0].toUpperCase() + (el.substring(1, el.length)).toLowerCase() : "";
+          })).join(" ");
+          break;
+      }
+      return casedValue;
+    },
+    //MXWEB End
 
     /**
      * Triggers text size recalculation after a web font was loaded
@@ -933,7 +995,11 @@ qx.Class.define("qx.ui.form.AbstractField", {
         this._placeholder.dispose();
         this._placeholder = null;
       }
-      if (!this.__useQxPlaceholder) {
+      //MXWEB if (!this.__useQxPlaceholder && qx.ui.form.AbstractField.__stylesheet) {
+      //MXWEB   qx.bom.Stylesheet.removeSheet(qx.ui.form.AbstractField.__stylesheet);
+      //MXWEB   qx.ui.form.AbstractField.__stylesheet = null;
+		
+      if (!this.__useQxPlaceholder) { //MXWEB 
         qx.ui.form.AbstractField.__addPlaceholderRules();
       }
     },

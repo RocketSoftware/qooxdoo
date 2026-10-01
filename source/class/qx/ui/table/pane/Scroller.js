@@ -227,7 +227,37 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
       apply: "_applyVerticalScrollBarVisible",
       event: "changeVerticalScrollBarVisible"
     },
+	//MXWEB Start
+    //LWEB-574 - Scrollbar button event for Grid
+    /**
+     * The policy, when the horizontal scrollbar should be shown.
+     * <ul>
+     *   <li><b>auto</b>: Show scrollbar on demand</li>
+     *   <li><b>on</b>: Always show the scrollbar</li>
+     *   <li><b>off</b>: Never show the scrollbar</li>
+     * </ul>
+     */
+    scrollbarX : {
+      check : ["auto", "on", "off"],
+      init : "auto",
+      themeable : true
+    },
 
+    /**
+     * The policy, when the horizontal scrollbar should be shown.
+     * <ul>
+     *   <li><b>auto</b>: Show scrollbar on demand</li>
+     *   <li><b>on</b>: Always show the scrollbar</li>
+     *   <li><b>off</b>: Never show the scrollbar</li>
+     * </ul>
+     */
+    scrollbarY : {
+      check : ["auto", "on", "off"],
+      init : "auto",
+      themeable : true
+    },
+    //MXWEB End
+	
     /** The table pane model. */
     tablePaneModel: {
       check: "qx.ui.table.pane.Model",
@@ -385,6 +415,10 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
 
     __focusIndicatorPointerDownListener: null,
 
+    __defaultAndroid: "auto", //MXWEB
+    __pinchZoomOnly: "pinch-zoom", //MXWEB
+
+
     /**
      * The right inset of the pane. The right inset is the maximum of the
      * top right widget width and the scrollbar width (if visible).
@@ -463,6 +497,7 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
           });
 
           control.addListener("scroll", this._onScrollX, this);
+          control.addListener("changeVisibility", this.__onChangeScrollbarVisibility, this); //MXWEB LS-21550 - LegaSuite Web does not swipe-scroll, pinch and zoom well on Android phone
 
           if (this.__clipperContainer != null) {
             control.setMinHeight(
@@ -482,7 +517,7 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
         case "scrollbar-y":
           control = this._createScrollBar("vertical");
           control.addListener("scroll", this._onScrollY, this);
-
+          control.addListener("changeVisibility", this.__onChangeScrollbarVisibility, this); //MXWEB LS-21550 - LegaSuite Web does not swipe-scroll, pinch and zoom well on Android phone
           if (this.__clipperContainer != null) {
             this.__clipperContainer.add(control, {
               right: 0,
@@ -497,6 +532,23 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
 
       return control || super._createChildControlImpl(id);
     },
+
+    //MXWEB Start
+    //LS-21550 - LegaSuite Web does not swipe-scroll, pinch and zoom well on Android phone
+    __onChangeScrollbarVisibility : function(e)
+      {
+      var showX = this._isChildControlVisible("scrollbar-x");
+      var showY = this._isChildControlVisible("scrollbar-y");
+
+      if(qx.core.Environment.get("os.name") === "android") {
+        if(showX || showY) {
+          this.getContentElement().setStyles({"touch-action": this.__pinchZoomOnly, "-ms-touch-action" : this.__pinchZoomOnly});
+        } else {
+          this.getContentElement().setStyles({"touch-action": this.__defaultAndroid, "-ms-touch-action" : this.__defaultAndroid});
+        }
+      }
+    },
+	//MXWEB End
 
     // property modifier
     _applyHorizontalScrollBarVisible(value, old) {
@@ -772,7 +824,11 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
         var max = Math.max(0, scrollSize - paneSize.height);
 
         scrollBar.setMaximum(max);
-        scrollBar.setKnobFactor(paneSize.height / scrollSize);
+        if(scrollSize - paneSize.height < rowHeight) { //MXWEB LS-20524 - vertical-grid-scroll-bar-miscalculated
+          scrollBar.setKnobFactor(1); //MXWEB
+        } else { //MXWEB
+          scrollBar.setKnobFactor(paneSize.height / scrollSize);
+        } //MXWEB
 
         var pos = scrollBar.getPosition();
         scrollBar.setPosition(Math.min(pos, max));
@@ -828,32 +884,34 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
      */
     __inOnScrollY: false,
     _onScrollY(e) {
-      if (this.__inOnScrollY) {
-        return;
-      }
-      var scrollbar = this.__verScrollBar;
-      this.__inOnScrollY = true;
-      // calculate delta so that one row is scrolled at a minimum
-      var rowHeight = this.getTable().getRowHeight();
-      var delta = e.getData() - e.getOldData();
-      if (Math.abs(delta) > 1 && Math.abs(delta) < rowHeight) {
-        delta =
-          delta < 0 ? e.getOldData() - rowHeight : e.getOldData() + rowHeight;
-        if (
-          delta >= 0 &&
-          delta <= scrollbar.getMaximum() &&
-          Math.abs(scrollbar.getPosition() - delta) > rowHeight
-        ) {
-          scrollbar.setPosition(delta);
-        }
-      }
-      this.__inOnScrollY = false;
-      this.fireDataEvent(
-        "changeScrollY",
-        scrollbar.getPosition(),
-        e.getOldData()
-      );
-
+      //MXWEB Start
+      //LS-36479 - Fix regression issues for Qooxdoo 7.x
+      // Calculation is wrong, now using old statement below again
+      
+	  this.fireDataEvent("changeScrollY", e.getData(), e.getOldData());
+      
+	  //if (this.__inOnScrollY) {
+      //  return;
+      //}
+      //var scrollbar = this.__verScrollBar;
+      //this.__inOnScrollY = true;
+      //// calculate delta so that one row is scrolled at an minimum
+      //var rowHeight = this.getTable().getRowHeight();
+      //var delta = e.getData() - e.getOldData();
+      //if (Math.abs(delta) > 1 && Math.abs(delta) < rowHeight) {
+      //  delta =
+      //    delta < 0 ? e.getOldData() - rowHeight : e.getOldData() + rowHeight;
+      //  if (delta >= 0 && delta <= scrollbar.getMaximum()) {
+      //    scrollbar.setPosition(delta);
+      //  }
+      //}
+      //this.__inOnScrollY = false;
+      //this.fireDataEvent(
+      //  "changeScrollY",
+      //  scrollbar.getPosition(),
+      //  e.getOldData()
+      //);
+      //MXWEB End
       this._postponedUpdateContent();
     },
 
@@ -1076,15 +1134,20 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
       this.__lastPointerPageX = pageX;
       this.__lastPointerPageY = pageY;
 
-      var useResizeCursor = false;
-      var resizeCol = this._getResizeColumnForPageX(pageX);
-      if (resizeCol != -1) {
-        // The pointer is over a resize region -> Show the right cursor
-        useResizeCursor = true;
-      }
-      var cursor = useResizeCursor ? "col-resize" : null;
-      this.getApplicationRoot().setGlobalCursor(cursor);
-      this.setCursor(cursor);
+      //MXWEB Start 
+      //LS-36479 - Fix regression issues for Qooxdoo 7.x - Start
+      // Use the old resize method for grid columns. Only on grid headers.    
+      //var useResizeCursor = false;
+      //var resizeCol = this._getResizeColumnForPageX(pageX);
+      //if (resizeCol != -1) {
+      //  // The pointer is over a resize region -> Show the right cursor
+      //  useResizeCursor = true;
+      //}
+      //var cursor = useResizeCursor ? "col-resize" : null;
+      //this.getApplicationRoot().setGlobalCursor(cursor);
+      //this.setCursor(cursor);
+      // https://jira.rocketsoftware.com/browse/LS-36479 - [#LS-36479] Fix regression issues for Qooxdoo 7.x - End
+	  //MXWEB End
 
       var row = this._getRowForPagePos(pageX, pageY);
       if (row != null && this._getColumnForPageX(pageX) != null) {
@@ -1173,13 +1236,17 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
       var pageX = e.getDocumentLeft();
 
       // pointer is in header
-      var resizeCol = this._getResizeColumnForPageX(pageX);
-      if (resizeCol != -1) {
-        // The pointer is over a resize region -> Start resizing
-        this._startResizeHeader(resizeCol, pageX);
-        e.stop();
-        return;
-      }
+	  //MXWEB Start
+      // https://jira.rocketsoftware.com/browse/LS-36479 - [#LS-36479] Fix regression issues for Qooxdoo 7.x - Start
+      // Use the old resize method for grid columns. Only on grid headers.    
+      // var resizeCol = this._getResizeColumnForPageX(pageX);
+      // if (resizeCol != -1) {
+      //  // The pointer is over a resize region -> Start resizing
+      //  this._startResizeHeader(resizeCol, pageX);
+      //  e.stop();
+      //  return;
+      //}
+      //MXWEB End
 
       var pageY = e.getDocumentTop();
       var row = this._getRowForPagePos(pageX, pageY);
@@ -2234,10 +2301,19 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
       // Create the mask
       var horBar = qx.ui.table.pane.Scroller.HORIZONTAL_SCROLLBAR;
       var verBar = qx.ui.table.pane.Scroller.VERTICAL_SCROLLBAR;
-      return (
-        (forceHorizontal || horNeeded ? horBar : 0) |
-        (preventVertical || !verNeeded ? 0 : verBar)
-      );
+	  //MXWEB Start
+      //LWEB-574 - Scrollbar button event for Grid
+	  //MXWEB return (
+      //MXWEB  (forceHorizontal || horNeeded ? horBar : 0) |
+      //MXWEB  (preventVertical || !verNeeded ? 0 : verBar)
+      //MXWEB );
+      var scrollXOn = this.getScrollbarX() === "on";
+      var scrollXOff = this.getScrollbarX() === "off";
+      var scrollYOn = this.getScrollbarY() === "on";
+      var scrollYOff = this.getScrollbarY() === "off";
+      return ((scrollXOn || forceHorizontal || horNeeded) && !scrollXOff ? horBar : 0)
+        | ((scrollYOff || preventVertical || !verNeeded) && !scrollYOn ? 0 : verBar);
+      //MXWEB End
     },
 
     /**

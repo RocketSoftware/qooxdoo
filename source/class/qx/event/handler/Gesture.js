@@ -113,6 +113,8 @@ qx.Class.define("qx.event.handler.Gesture", {
     // interface implementation
     unregisterEvent(target, type, capture) {
       // Nothing needs to be done here
+      //MXWEB LS-18169 - JavaScript heap is increasing and causing client performance issues over time JavaScript heap is increasing and causing client performance issues over time
+      this.cleanupOnUnregister(); //MXWEB
     },
 
     // overridden

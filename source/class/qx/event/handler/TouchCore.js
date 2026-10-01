@@ -340,6 +340,7 @@ qx.Bootstrap.define("qx.event.handler.TouchCore", {
         domEvent.changedTouches[0]
       ) {
         delete this.__touchStartPosition[domEvent.changedTouches[0].identifier];
+        this.__originalTarget = null; //MXWEB LS-18169 - JavaScript heap is increasing and causing client performance issues over time JavaScript heap is increasing and causing client performance issues over time
       }
     },
 
@@ -474,7 +475,12 @@ qx.Bootstrap.define("qx.event.handler.TouchCore", {
         this.__emitter.emit(type, domEvent);
       }
     },
-
+    //MXWEB Start
+    //LS-18169 - JavaScript heap is increasing and causing client performance issues over time JavaScript heap is increasing and causing client performance issues over time
+    cleanupOnUnregister: function() {
+      this.__originalTarget = null;
+    }, 
+	//MXWEB End
     /**
      * Dispose this object
      */

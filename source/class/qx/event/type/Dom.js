@@ -52,6 +52,10 @@ qx.Class.define("qx.event.type.Dom", {
     _cloneNativeEvent(nativeEvent, clone) {
       var clone = super._cloneNativeEvent(nativeEvent, clone);
 
+      //MXWEB LS-17447 - keyboard buffer
+      clone.key = nativeEvent.key; //MXWEB 
+      clone.char = nativeEvent.char; //MXWEB
+
       clone.shiftKey = nativeEvent.shiftKey;
       clone.ctrlKey = nativeEvent.ctrlKey;
       clone.altKey = nativeEvent.altKey;

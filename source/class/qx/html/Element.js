@@ -1940,6 +1940,13 @@ qx.Class.define("qx.html.Element", {
       }
       return false;
     },
+    //MXWEB Start
+	//LWEB-183 - enable-image-to-be-set-through-theme   
+    getAllAttributes: function() {
+      return this.__attribValues || null;
+    }, 
+	//MXWEB End
+
 
     /*
     ---------------------------------------------------------------------------

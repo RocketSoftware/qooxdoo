@@ -202,6 +202,16 @@ qx.Class.define("qx.ui.form.Spinner", {
       nullable: true
     },
 
+    //MXWEB Start
+	//LWEB-929 -  Cannot backspace last digit on date picker with forward/backward option
+    //The value to use when a non-number (empty string or alpha characters) was entered.
+    valueForInvalidValue: {
+      check : "this._checkValueForInvalidValue(value)",
+      nullable : true,
+      init : null
+    },
+	//MXWEB End
+
     // overridden
     allowShrinkY: {
       refine: true,
@@ -345,6 +355,12 @@ qx.Class.define("qx.ui.form.Spinner", {
       } else {
         this._updateButtons();
       }
+	  //MXWEB Start
+      //LWEB-929 - Cannot backspace last digit on date picker with forward/backward option
+      if (this.getValueForInvalidValue() != null && this.getValueForInvalidValue() < value) {
+        this.setValueForInvalidValue(value);
+      }
+	  //MXWEB End
     },
 
     /**
@@ -366,6 +382,12 @@ qx.Class.define("qx.ui.form.Spinner", {
       } else {
         this._updateButtons();
       }
+      //MXWEB Start 
+      //LWEB-929 - Cannot backspace last digit on date picker with forward/backward option
+      if (this.getValueForInvalidValue() != null && this.getValueForInvalidValue() > value) {
+        this.setValueForInvalidValue(value);
+      }
+	  //MXWEB End
     },
 
     // overridden
@@ -398,6 +420,26 @@ qx.Class.define("qx.ui.form.Spinner", {
       );
     },
 
+    //MXWEB Start
+    //LWEB-929 - Cannot backspace last digit on date picker with forward/backward option
+    /**
+     * Check whether the value being applied is allowed. The value can be empty. If not, then it must be a
+     * number between min/max value.
+     *
+     * @param value {var}
+     *   The value to use in case of an invalid value
+     * @return {Boolean}
+     *   <i>true</i> if the value is allowed;
+     *   <i>false> otherwise.
+     */
+    _checkValueForInvalidValue : function(value) {
+      if(value !== null) {
+        return this._checkValue(value);
+      }
+      return true;
+    },
+    //MXWEB End
+	
     /**
      * Apply routine for the value property.
      *
@@ -659,12 +701,14 @@ qx.Class.define("qx.ui.form.Spinner", {
     _onTextChange(e) {
       var textField = this.getChildControl("textfield");
       var value;
+      const textFieldValue = textField.getValue(); //MXWEB LWEB-402 - Datepicker with fwd/bwd option does not allow to type -1 directly
 
       // if a number format is set
       if (this.getNumberFormat()) {
         // try to parse the current number using the number format
         try {
-          value = this.getNumberFormat().parse(textField.getValue());
+          //MXWEB value = this.getNumberFormat().parse(textField.getValue());
+          value = this.getNumberFormat().parse(textFieldValue); //MXWEB LWEB-402 - Datepicker with fwd/bwd option does not allow to type -1 directly
         } catch (ex) {
           // otherwise, process further
         }
@@ -672,7 +716,8 @@ qx.Class.define("qx.ui.form.Spinner", {
 
       if (value === undefined) {
         // try to parse the number as a float
-        value = parseFloat(textField.getValue());
+        //MXWEB value = parseFloat(textField.getValue());
+        value = parseFloat(textFieldValue); //MXWEB LWEB-402 - Datepicker with fwd/bwd option does not allow to type -1 directly
       }
 
       // if the result is a number
@@ -686,13 +731,26 @@ qx.Class.define("qx.ui.form.Spinner", {
 
         // If value is the same than before, call directly _applyValue()
         if (value === this.__lastValidValue) {
-          this._applyValue(this.__lastValidValue);
+          if(textFieldValue !== "-0" || !e) { //MXWEB LWEB-402 - Datepicker with fwd/bwd option does not allow to type -1 directly 
+              this._applyValue(this.__lastValidValue); //MXWEB 
+          } //MXWEB 
         } else {
           this.setValue(value);
         }
       } else {
         // otherwise, reset the last valid value
-        this._applyValue(this.__lastValidValue, undefined);
+		//MXWEB this._applyValue(this.__lastValidValue, undefined);
+
+        //MXWEB Start 
+        //MXWEB LWEB-402 - Datepicker with fwd/bwd option does not allow to type -1 directly
+        if(textFieldValue !== "-" || !e) {
+          var valForInvalidValue = this.getValueForInvalidValue();
+          if(valForInvalidValue !== null) {
+            this.setValue(valForInvalidValue);  // Will also trigger a 'change' event
+          }
+          this._applyValue(this.__lastValidValue, undefined);
+        }
+		//MXWEB End
       }
     },
 

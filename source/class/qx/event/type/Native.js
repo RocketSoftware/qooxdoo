@@ -81,6 +81,9 @@ qx.Class.define("qx.event.type.Native", {
      */
     _cloneNativeEvent(nativeEvent, clone) {
       clone.preventDefault = function () {};
+      //MXWEB LS-17447 - keyboard buffer
+      clone.type = nativeEvent.type; //MXWEB
+      clone.detail = nativeEvent.detail; //MXWEB
       return clone;
     },
 
