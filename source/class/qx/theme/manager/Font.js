@@ -317,8 +317,8 @@ qx.Class.define("qx.theme.manager.Font", {
 
     // apply method
     _applyTheme(value) {
-      //MXWEB var dest = (this._dynamic = {});
-      var dest = this._dynamic; //MXWEB LS-36479 - Fix regression issues for Qooxdoo 7.x
+      //MXWEB var createdFonts = (this._dynamic = {});
+      var createdFonts = this._dynamic; //MXWEB LS-36479 - Fix regression issues for Qooxdoo 7.x
 
       for (let key in createdFonts) {
         if (createdFonts[key].themed) {

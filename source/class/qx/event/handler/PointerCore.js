@@ -559,7 +559,14 @@ qx.Bootstrap.define("qx.event.handler.PointerCore", {
         }
       }
     },
-
+	
+    //MXWEB Start
+    //LS-18169 - JavaScript heap is increasing and causing client performance issues over time JavaScript heap is increasing and causing client performance issues over time
+    cleanupOnUnregister: function() {
+      this.__defaultTarget = null;
+    },
+	//MXWEB End
+  
     /**
      * Dispose this object
      */

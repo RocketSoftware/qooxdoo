@@ -370,7 +370,7 @@ qx.Class.define("qx.ui.basic.Image", {
       //MXWEB Start
 	  //LWEB-183 - enable-image-to-be-set-through-theme   
       //this._styleSource();
-      if(this.__sourceToDisplay()) {
+      if(this.__sourceToDisplay) {
           this._styleSource();
       }
 	  //MXWEB End
@@ -379,7 +379,7 @@ qx.Class.define("qx.ui.basic.Image", {
     //MXWEB Start
     //LWEB-183 - enable-image-to-be-set-through-theme 
     _applyRepeat: function(value) {
-      if(this.__sourceToDisplay()) {
+      if(this.__sourceToDisplay) {
         this._styleSource();
       }
     },

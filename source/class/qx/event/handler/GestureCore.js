@@ -945,6 +945,15 @@ qx.Bootstrap.define("qx.event.handler.GestureCore", {
         gesture.longTapTimer = null;
       }
     },
+    
+    //MXWEB Start
+    //LS-18169 - JavaScript heap is increasing and causing client performance issues over time JavaScript heap is increasing and causing client performance issues over time
+    cleanupOnUnregister: function() {
+      this.__defaultTarget = null;
+      this.__primaryTarget = null;
+      this.__lastTap = {};
+    },
+    //MXWEB End
 
     /**
      * Dispose the current instance
