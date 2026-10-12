@@ -1571,9 +1571,13 @@ qx.Class.define("qx.ui.table.Table", {
      */
     setFocusedCell(col, row, scrollVisible) {
       let cellChanged = col != this.__focusedCol || row != this.__focusedRow;
-      if (this.isEditing() && cellChanged) {
-        this.stopEditing();
-      }
+      
+      //MXWEB LS-43251 - update-qooxdoo-from-7.5.0-to-7.9.3
+      //MXWEB Removed qooxdoo regression #10850
+      //MXWEB if (this.isEditing() && cellChanged) {
+      //MXWEB   this.stopEditing();
+      //MXWEB }
+      
       if (!this.isEditing() && cellChanged) {
         if (col === null) {
           col = 0;
