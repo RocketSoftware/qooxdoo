@@ -304,6 +304,8 @@ qx.Bootstrap.define("qx.bom.Label", {
 
       size = this.__measureSize(element, styles);
       this.__storeCacheSize(cacheKey, content, size);
+      
+      element.innerHTML = ""; //MXWEB LS-43251 - SPIKE: Update Qooxdoo from 7.5 to 7.9.3 - QA uses text lookup, we should no have two same label texts
       return size;
     },
 
@@ -334,6 +336,17 @@ qx.Bootstrap.define("qx.bom.Label", {
 
       size = this.__measureSize(element, styles);
       this.__storeCacheSize(cacheKey, text, size);
+      //MXWEB start
+      //LS-43251 - SPIKE: Update Qooxdoo from 7.5 to 7.9.3 - QA uses text lookup, we should no have two same label texts      
+      if (
+        !qx.core.Environment.get("css.textoverflow") &&
+        qx.core.Environment.get("html.xul")
+      ) {
+        element.firstChild.removeAttribute("value");
+      } else {
+        qx.bom.element.Attribute.reset(element, "text");
+      }
+      //MXWEB end
       return size;
     },
 
