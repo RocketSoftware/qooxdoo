@@ -644,6 +644,13 @@ qx.Bootstrap.define("qx.core.Assert", {
      * @param msg {String?} Message to be shown if the assertion fails.
      */
     assertBoolean(value, msg) {
+      //MXWEB start
+      //LS-43251 - SPIKE: Update Qooxdoo from 7.5 to 7.9.3 - Allow string boolean value
+      if (typeof value === "string") {
+        const lower = value.toLowerCase();
+        value = lower === "true" ? true : lower === "false" ? false : value;
+      }
+      //MXWEB end
       qx.lang.Type.isBoolean(value) ||
         this.__fail(
           msg || "",
