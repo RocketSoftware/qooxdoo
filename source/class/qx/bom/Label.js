@@ -292,7 +292,8 @@ qx.Bootstrap.define("qx.bom.Label", {
       let cacheKey = this.__getCacheKey(styles, width);
       let size = this.__getCachedSize(cacheKey, content);
       if (size !== undefined) {
-        return size;
+        //MXWEB LS-43251 return size;
+        return Object.assign({}, size); //MXWEB LS-43251 Shallow copy prevents mutations
       }
 
       var element = this._htmlElement || this.__prepareHtml();
@@ -320,7 +321,8 @@ qx.Bootstrap.define("qx.bom.Label", {
       let cacheKey = this.__getCacheKey(styles);
       let size = this.__getCachedSize(cacheKey, text);
       if (size !== undefined) {
-        return size;
+        //MXWEB LS-43251 return size;
+        return Object.assign({}, size); //MXWEB LS-43251 Shallow copy prevents mutations
       }
 
       var element = this._textElement || this.__prepareText();
