@@ -356,7 +356,7 @@ qx.Class.define("qx.ui.basic.Image", {
       // abort loading current image
       if (old) {
         if (qx.io.ImageLoader.isLoading(old)) {
-          qx.io.ImageLoader.abort(old);
+          qx.io.ImageLoader.abort(old, this); //MXWEB LS-43251 - (let abort() verify ownership)
         }
       }
 

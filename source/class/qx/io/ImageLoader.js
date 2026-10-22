@@ -227,39 +227,78 @@ qx.Bootstrap.define("qx.io.ImageLoader", {
         entry.element = el;
       }
     },
-
+    //MXWEB Start
+	//LS-43251 - rewrite abort
     /**
      * Abort the loading for the given url.
      *
-     * @param source {String} URL of the image to abort its loading.
+     * @param imageUrl {String} URL of the image to abort its loading.
+     * @param context {Object?} The specific context to remove from callbacks.
+     *   If provided, only that listener is removed. If all listeners are removed,
+     *   the entire load is aborted. If not provided, aborts unconditionally.
      */
-    abort(source) {
-      var entry = this.__data[source];
+    abort(imageUrl, context = null) {
+      const imageData = this.__data[imageUrl];
 
-      if (entry && !entry.loaded) {
-        entry.aborted = true;
+      if (imageData && !imageData.loaded) {
+        // Remove a specific subscriber
+        if (imageData.callbacks && context) {
+          const callbacks = imageData.callbacks;
 
-        var callbacks = entry.callbacks;
-        var element = entry.element;
+          // Callback array format:
+          // [callback1, context1, callback2, context2, ...]
+          for (let i = callbacks.length - 2; i >= 0; i -= 2) {
+            const callback = callbacks[i];
+            const callbackContext = callbacks[i + 1];
 
-        // Cleanup listeners
-        element.onload = element.onerror = null;
+            if (callbackContext === context) {
+              callback.call(context, imageUrl, {
+                aborted: true
+              });
 
-        // prevent further loading
-        element.src = "";
+              callbacks.splice(i, 2);
+            }
+          }
 
-        // Cleanup entry
-        delete entry.callbacks;
-        delete entry.element;
-        delete entry.loading;
+          // Other listeners are still waiting for this image
+          if (callbacks.length > 0) {
+            return;
+          }
+        }
 
-        for (var i = 0, l = callbacks.length; i < l; i += 2) {
-          callbacks[i].call(callbacks[i + 1], source, entry);
+        imageData.aborted = true;
+
+        const callbacks = imageData.callbacks;
+        const imageElement = imageData.element;
+
+        // Prevent any further image events
+        if (imageElement) {
+          imageElement.onload = null;
+          imageElement.onerror = null;
+          imageElement.src = "";
+        }
+
+        // Cleanup references
+        delete imageData.callbacks;
+        delete imageData.element;
+        delete imageData.loading;
+
+        // Notify remaining listeners
+        if (callbacks) {
+          for (let i = 0, len = callbacks.length; i < len; i += 2) {
+            callbacks[i].call(
+              callbacks[i + 1],
+              imageUrl,
+              imageData
+            );
+          }
         }
       }
 
-      this.__data[source] = null;
+      // Remove image loader entry
+      this.__data[imageUrl] = null;
     },
+    //MXWEB End
 
     /**
      * Calls a method based on qx.globalErrorHandling
