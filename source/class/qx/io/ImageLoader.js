@@ -161,15 +161,12 @@ qx.Bootstrap.define("qx.io.ImageLoader", {
      *   second parameter is the data entry which contains additional
      *   information about the image.
      * @param context {Object?} Context in which the given callback should be executed
-     * @param options {Map?} Optional configuration options:
-     * - retryFailed {boolean} Whether to retry loading of a failed image source
      */
-    load(source, callback, context, options) {
-      options ??= {};
+    load(source, callback, context) {
       // Shorthand
       var entry = this.__data[source];
 
-      if (!entry || (options.retryFailed && entry.failed)) {
+      if (!entry) {
         entry = this.__data[source] = {};
       }
 
@@ -227,77 +224,46 @@ qx.Bootstrap.define("qx.io.ImageLoader", {
         entry.element = el;
       }
     },
-    //MXWEB Start
-	//LS-43251 - rewrite abort
+
     /**
      * Abort the loading for the given url.
      *
-     * @param imageUrl {String} URL of the image to abort its loading.
-     * @param context {Object?} The specific context to remove from callbacks.
-     *   If provided, only that listener is removed. If all listeners are removed,
-     *   the entire load is aborted. If not provided, aborts unconditionally.
+     * @param source {String} URL of the image to abort its loading.
      */
-    abort(imageUrl, context = null) {
-      const imageData = this.__data[imageUrl];
-
-      if (imageData && !imageData.loaded) {
-        // Remove a specific subscriber
-        if (imageData.callbacks && context) {
-          const callbacks = imageData.callbacks;
-
-          // Callback array format:
-          // [callback1, context1, callback2, context2, ...]
-          for (let i = callbacks.length - 2; i >= 0; i -= 2) {
-            const callback = callbacks[i];
-            const callbackContext = callbacks[i + 1];
-
-            if (callbackContext === context) {
-              callback.call(context, imageUrl, {
-                aborted: true
-              });
-
-              callbacks.splice(i, 2);
+    //MXWEB Start
+    abort(source, context = null) {
+        const entry = this.__data[source];
+        if (entry && !entry.loaded) {
+          if (entry.callbacks && context) {
+            const callback = entry.callbacks;
+            for (let i = callback.length - 2; i >= 0; i -= 2) {
+              if (callback[i + 1] === context) {
+                callback[i].call(context, source, { aborted: true });
+                callback.splice(i, 2);
+              }
+            }
+            if (callback.length > 0) {
+              return;
             }
           }
-
-          // Other listeners are still waiting for this image
-          if (callbacks.length > 0) {
-            return;
+          entry.aborted = true;
+          const callbacks = entry.callbacks;
+          const element = entry.element;
+          if (element) {
+            element.onload = element.onerror = null;
+            element.src = "";
+          }
+          delete entry.callbacks;
+          delete entry.element;
+          delete entry.loading;
+          if (callbacks) {
+            for (let i = 0, l = callbacks.length; i < l; i += 2) {
+              callbacks[i].call(callbacks[i + 1], source, entry);
+            }
           }
         }
-
-        imageData.aborted = true;
-
-        const callbacks = imageData.callbacks;
-        const imageElement = imageData.element;
-
-        // Prevent any further image events
-        if (imageElement) {
-          imageElement.onload = null;
-          imageElement.onerror = null;
-          imageElement.src = "";
-        }
-
-        // Cleanup references
-        delete imageData.callbacks;
-        delete imageData.element;
-        delete imageData.loading;
-
-        // Notify remaining listeners
-        if (callbacks) {
-          for (let i = 0, len = callbacks.length; i < len; i += 2) {
-            callbacks[i].call(
-              callbacks[i + 1],
-              imageUrl,
-              imageData
-            );
-          }
-        }
-      }
-
-      // Remove image loader entry
-      this.__data[imageUrl] = null;
-    },
+        this.__data[source] = null;
+      },
     //MXWEB End
 
     /**
