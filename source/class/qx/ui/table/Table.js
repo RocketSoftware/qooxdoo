@@ -542,15 +542,15 @@ qx.Class.define("qx.ui.table.Table", {
       nullable: true,
       event: "changeDataRowRenderer"
     },
-
-    /**
-     * The action to take when a cell is being edited and the focus moves elsewhere.
-     */
-    cellEditorBlurAction: {
-      check: ["nothing", "save", "cancel"],
-      init: "nothing"
-    },
-
+//MXWEB Start
+//    /**
+//     * The action to take when a cell is being edited and the focus moves elsewhere.
+//     */
+//    cellEditorBlurAction: {
+//      check: ["nothing", "save", "cancel"],
+//      init: "nothing"
+//    },
+//MXWEB End
     /**
      * A function to call when before modal cell editor is opened.
      *

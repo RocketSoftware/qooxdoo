@@ -1940,7 +1940,7 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
           // Make the focus indicator visible during editing
           this.__focusIndicator.setDecorator("table-scroller-focus-indicator");
 
-          this._cellEditor.addListenerOnce('focusin', this._onFocusinCellEditorAddBlurListener, this);
+          //MXWEB this._cellEditor.addListenerOnce('focusin', this._onFocusinCellEditorAddBlurListener, this);
           this._cellEditor.focus();
           this._cellEditor.activate();
         }
@@ -2031,38 +2031,39 @@ qx.Class.define("qx.ui.table.pane.Scroller", {
     _onCellEditorModalWindowClose(e) {
       this.stopEditing();
     },
-
-    /**
-     * Focusin event handler which attaches the blur event listener ot the cell editor
-     * and uses a timer event to allow the focusin event listener execution before
-     * the blur event listener execution
-     */
-    _onFocusinCellEditorAddBlurListener(e) {
-      this.debug("executed FOCUSIN event listener for hash: " + e.getTarget().$$hash);
-      qx.event.Timer.once(function() {
-        this._cellEditor.addListener('focusout', this._onFocusoutCellEditorStopEditing, this);
-        this.debug('added FOCUSOUT listener to hash: ' + this._cellEditor.$$hash);
-      }, this, 1);
-    },
-
-
-    _onFocusoutCellEditorStopEditing(e) {
-      this.debug("executed FOCUSOUT listener for hash " + e.getTarget().$$hash);
-      if (this._cellEditor === e.getTarget()) {
-        this.debug('hash: ' + this._cellEditor.$$hash);
-        switch (this.getTable().getCellEditorBlurAction()) {
-          case "save":
-            this.stopEditing();
-            break;
-          case "cancel":
-            this.cancelEditing();
-            break;
-          case "nothing":
-          default:
-            // do nothing
-        }
-      }
-    },
+//MXWEB Start
+//    /**
+//     * Focusin event handler which attaches the blur event listener ot the cell editor
+//     * and uses a timer event to allow the focusin event listener execution before
+//     * the blur event listener execution
+//     */
+//    _onFocusinCellEditorAddBlurListener(e) {
+//      this.debug("executed FOCUSIN event listener for hash: " + e.getTarget().$$hash);
+//      qx.event.Timer.once(function() {
+//        this._cellEditor.addListener('focusout', this._onFocusoutCellEditorStopEditing, this);
+//        this.debug('added FOCUSOUT listener to hash: ' + this._cellEditor.$$hash);
+//      }, this, 1);
+//    },
+//
+//
+//    _onFocusoutCellEditorStopEditing(e) {
+//      this.debug("executed FOCUSOUT listener for hash " + e.getTarget().$$hash);
+//      if (this._cellEditor === e.getTarget()) {
+//        this.debug('hash: ' + this._cellEditor.$$hash);
+//        switch (this.getTable().getCellEditorBlurAction()) {
+//          case "save":
+//            this.stopEditing();
+//            break;
+//          case "cancel":
+//            this.cancelEditing();
+//            break;
+//          case "nothing":
+//          default:
+//            // do nothing
+//        }
+//      }
+//    },
+//MXWEB End
 
     /**
      * Returns the model index of the column the pointer is over or null if the pointer

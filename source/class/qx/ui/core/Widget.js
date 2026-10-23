@@ -1470,14 +1470,16 @@ qx.Class.define("qx.ui.core.Widget", {
       // Flush the queues because to detect if the widget ins visible, the
       // queues need to be flushed (see bug #5254)
       qx.ui.core.queue.Manager.flush();
-      // if the element is already rendered, a check for the offsetWidth is enough
-      var element = this.getContentElement().getDomElement();
-      if (element) {
-        // will also be 0 if the parents are not visible
-        return element.offsetWidth > 0;
-      }
-      // if no element is available, it can not be visible
-      return false;
+      return (this.getContentElement()?.getDomElement()?.offsetWidth ?? 0) > 0; //MXWEB
+     
+//MXWEB      // if the element is already rendered, a check for the offsetWidth is enough
+//MXWEB      var element = this.getContentElement().getDomElement();
+//MXWEB      if (element) {
+//MXWEB        // will also be 0 if the parents are not visible
+//MXWEB        return element.offsetWidth > 0;
+//MXWEB      }
+//MXWEB      // if no element is available, it can not be visible
+//MXWEB      return false;
     },
 
     /*
